@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= settings.site_title %> | Photography</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <nav>
+        <div class="logo"><%= settings.site_title %></div>
+        <div class="hamburger" onclick="document.querySelector('ul').classList.toggle('active')">☰</div>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/gallery">Gallery</a></li>
+            <li><a href="/services">Services</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <% if(user) { %>
+                <li><a href="/admin/dashboard" style="color: #00ffcc;">Dashboard</a></li>
+            <% } %>
+        </ul>
+    </nav>

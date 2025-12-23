@@ -1,0 +1,23 @@
+<%- include('../partials/admin_header') %>
+<div style="max-width: 600px; margin: 2rem auto;">
+    <h2>Site Settings</h2>
+    <form action="/admin/settings" method="POST">
+        <label>Site Title</label>
+        <input type="text" name="site_title" value="<%= settings.site_title || '' %>">
+
+        <label>Contact Email</label>
+        <input type="text" name="contact_email" value="<%= settings.contact_email || '' %>">
+
+        <label>Instagram URL</label>
+        <input type="text" name="instagram_link" value="<%= settings.instagram_link || '' %>">
+
+        <label>Facebook URL</label>
+        <input type="text" name="facebook_link" value="<%= settings.facebook_link || '' %>">
+
+        <label>About Text</label>
+        <textarea name="about_text" rows="5" class="dark-input"><%= settings.about_text || '' %></textarea>
+
+        <button type="submit" class="btn" style="background: white; color: black; width: 100%;">Save Settings</button>
+    </form>
+</div>
+<%- include('../partials/footer') %>

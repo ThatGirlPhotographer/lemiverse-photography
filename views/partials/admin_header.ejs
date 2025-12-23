@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Admin' %> | Admin Panel</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        /* Admin-specific overrides */
+        body { 
+            background-color: #0d0d0d; /* Slightly lighter black */
+        }
+        
+        nav { 
+            border-bottom: 1px solid #c92a2a; /* Red border for Admin Mode */
+        }
+
+        /* Ensure admin links stand out but fit the theme */
+        .admin-nav-link { 
+            color: #aaa; 
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        
+        .admin-nav-link:hover { 
+            color: white; 
+        }
+
+        /* Mobile Menu Fixes for Admin */
+        @media(max-width: 768px) {
+            nav ul {
+                background: #0d0d0d !important; /* Match body bg */
+                border-bottom: 1px solid #c92a2a;
+            }
+            
+            /* Add spacing to the spacer line on mobile */
+            li[style*="border-left"] {
+                border-left: none !important;
+                border-top: 1px solid #333;
+                margin: 10px 0 !important;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/admin/dashboard" class="logo" style="color: #c92a2a; text-decoration: none;">ADMIN PANEL</a>
+        
+        <div class="hamburger" onclick="document.querySelector('nav ul').classList.toggle('active')">☰</div>
+        
+        <ul>
+            <li><a href="/admin/bookings" class="admin-nav-link">Bookings</a></li>
+            <li><a href="/admin/gallery/manage" class="admin-nav-link">Gallery</a></li>
+            <li><a href="/admin/categories" class="admin-nav-link">Categories</a></li> 
+            <li><a href="/admin/services" class="admin-nav-link">Services</a></li>
+            <li><a href="/admin/settings" class="admin-nav-link">Settings</a></li>
+            
+            <li style="border-left: 1px solid #333; margin: 0 10px; height: 20px; display: inline-block;"></li>
+            
+            <li><a href="/" target="_blank" style="color: #00ffcc;">View Site ↗</a></li>
+            <li><a href="/admin/logout" style="color: #ff4444;">Logout</a></li>
+        </ul>
+    </nav>

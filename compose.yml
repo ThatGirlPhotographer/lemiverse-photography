@@ -1,0 +1,33 @@
+services:
+  lemiverse-photos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lemiverse-photos
+    restart: unless-stopped
+    ports:
+      - "6754:6754"
+    volumes:
+      # Persist the SQLite database files
+      - ./database:/usr/src/app/database
+      # Persist photo uploads from multer
+      - ./uploads:/usr/src/app/public/uploads
+      # Mount logs directory for error tracking
+      - ./.logs:/usr/src/app/.logs
+    networks:
+      - photo-network
+    # Ensure the user has proper permissions (Matching your 1001:1001 style)
+    user: "1001:1001"
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  photo-network:
+    driver: bridge

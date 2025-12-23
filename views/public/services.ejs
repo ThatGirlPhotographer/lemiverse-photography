@@ -1,0 +1,232 @@
+<%- include('../partials/header') %>
+
+<link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700,300" rel="stylesheet">
+
+<style>
+/* --- CONVERTED CSS FROM SCSS --- */
+
+/* REMOVED font-family from body so it doesn't break the header */
+body {
+  background-color: #050505; 
+}
+
+.pricing-wrapper {
+  /* APPLIED font here instead so it only affects cards */
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 50px 20px;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.card {
+  /* Dimensions: Square-ish */
+  width: 290px;
+  height: 340px; 
+  text-align: center;
+  position: relative;
+  transition: all .2s;
+  cursor: pointer;
+  opacity: 0.8; 
+  box-shadow: 0px 17px 46px -10px rgba(0,0,0,0.5);
+  border-radius: 14px;
+  transform: scale(0);
+  animation: intro 1s forwards;
+}
+
+.card:nth-of-type(3n+1) { background: linear-gradient(45deg, #c96881 0%, #f7b695 100%); animation-delay: 0.1s; }
+.card:nth-of-type(3n+2) { background: linear-gradient(45deg, #6B6ECC 0%, #89BFDF 100%); animation-delay: 0.2s; }
+.card:nth-of-type(3n+3) { background: linear-gradient(45deg, #81B77B 0%, #A3E3C3 100%); animation-delay: 0.3s; }
+
+.card:hover {
+  opacity: 1;
+  transform: translateY(-5px);
+  z-index: 10;
+}
+
+.card_inner__circle {
+  overflow: hidden;
+  /* UPDATED: Increased Size */
+  width: 80px; 
+  height: 80px;
+  position: absolute;
+  background: #F1F0ED;
+  z-index: 10;
+  border-radius: 100px;
+  left: 0; right: 0; margin: auto;
+  box-shadow: 0px 7px 20px rgba(0, 0, 0, 0.28);
+  border: 4px solid #fff;
+  /* Adjusted top to center over the line (Header is 100px tall) */
+  top: 60px; 
+}
+
+.card_inner__circle img { 
+    /* UPDATED: Increased Icon Size */
+    height: 40px; 
+    width: 40px; 
+    position: relative; 
+    /* Centered vertically in the 80px circle */
+    top: 20px; 
+    transition: all .2s; 
+}
+
+/* REMOVED HOVER ANIMATIONS HERE */
+
+.card_inner__header {
+  height: 100px; 
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  overflow: hidden;
+}
+.card_inner__header img {
+  width: 120%;
+  position: relative;
+  top: -20px;
+  left: 0;
+  transition: all 3.4s linear;
+}
+.card:hover .card_inner__header img { left: -50px; }
+
+.card_inner__content {
+  padding: 15px;
+}
+
+.card_inner__content .title {
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.64);
+  margin-top: 45px; 
+  margin-bottom: 0; 
+  font-size: 22px;
+  letter-spacing: 1px;
+  line-height: 1; 
+}
+
+/* --- PRICE STYLING --- */
+.price-container {
+    display: flex;
+    justify-content: center;
+    align-items: baseline; 
+    gap: 10px; 
+    margin-top: -15px; 
+    height: 60px; 
+}
+
+.card_inner__content .price {
+  color: white;
+  font-weight: 800;
+  font-size: 50px; 
+  text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.42);
+}
+
+.sale-active-price {
+    color: white;
+    font-weight: 800;
+    font-size: 45px; 
+    text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.42);
+}
+
+.original-price-crossed {
+    font-size: 24px; 
+    text-decoration: line-through;
+    color: rgba(255,255,255,0.5); 
+    font-weight: 300;
+}
+
+.card_inner__content .text {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+  margin-top: 15px; 
+  font-size: 14px;
+  line-height: 16px;
+  
+  /* Truncate text */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card_inner__cta {
+  position: absolute;
+  bottom: -20px;
+  left: 0; right: 0; margin: auto;
+  width: 180px;
+}
+.card_inner__cta button {
+  padding: 12px;
+  box-shadow: 0px 0px 40px 4px #F76583, 0px 0px 0px 2px rgba(255, 255, 255, 0.19) inset;
+  width: 100%;
+  background: linear-gradient(-90deg, #fe5e7d 0%,#e5375b 100%);
+  border: none;
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  color: white;
+  outline: none;
+  font-size: 18px;
+  border-radius: 6px;
+  transform: scale(.94);
+  cursor: pointer;
+  transition: box-shadow .3s, transform .3s .1s;
+}
+.card:hover .card_inner__cta button { transform: scale(1); box-shadow: 0px 0px 60px 8px #F76583; }
+
+/* Animations (Intro Only) */
+@keyframes intro { 0%{transform:scale(0);} 25%{transform:scale(1.06);} 50%{transform:scale(.965);} 75%{transform:scale(1.02);} 100%{transform:scale(1);} }
+</style>
+
+<div class="pricing-wrapper">
+    <% services.forEach((service, index) => { 
+        let headerImg = 'http://www.pixeden.com/media/k2/galleries/343/002-city-vector-background-town-vol2.jpg';
+        let iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
+        
+        if (index % 3 === 1) { 
+            // Blue Card Theme
+            headerImg = 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=600&q=80';
+            iconImg = 'https://img.icons8.com/ios-filled/100/6B6ECC/camera--v1.png';
+        } else if (index % 3 === 2) { 
+            // Green Card Theme
+            headerImg = 'https://c7.uihere.com/files/859/510/385/abstract-forest-landscape.jpg';
+            iconImg = 'https://img.icons8.com/ios-filled/100/81B77B/camera--v1.png';
+        } else {
+             // Pink Card Theme (Default)
+             iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
+        }
+    %>
+
+    <section class="card">
+        <div class="card_inner">
+            <div class="card_inner__circle">
+                <img src="<%= iconImg %>">
+            </div>
+            <div class="card_inner__header">
+                <img src="<%= headerImg %>">
+            </div>
+            <div class="card_inner__content">
+                <div class="title"><%= service.title %></div>
+                
+                <div class="price-container">
+                    <% if (service.is_on_sale && service.sale_price) { %>
+                        <span class="original-price-crossed"><%= service.price %></span>
+                        <span class="sale-active-price"><%= service.sale_price %></span> 
+                    <% } else { %>
+                        <div class="price"><%= service.price %></div>
+                    <% } %>
+                </div>
+
+                <div class="text"><%= service.description %></div>
+            </div>
+            <div class="card_inner__cta">
+                <a href="/contact">
+                    <button><span>Book Now</span></button>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <% }) %>
+</div>
+
+<%- include('../partials/footer') %>

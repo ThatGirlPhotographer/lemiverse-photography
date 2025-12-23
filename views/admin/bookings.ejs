@@ -1,0 +1,245 @@
+<%- include('../partials/admin_header') %>
+
+<style>
+    /* --- GENERAL LAYOUT --- */
+    .bookings-container {
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        color: white;
+        min-height: 80vh;
+    }
+
+    h2 {
+        font-weight: 300;
+        letter-spacing: 2px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        font-size: 1.2rem;
+    }
+
+    /* --- TABLE STYLES --- */
+    .booking-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+    }
+
+    .booking-table th {
+        text-align: left;
+        padding: 15px;
+        font-size: 0.8rem;
+        color: #888;
+        border-bottom: 1px solid #333;
+    }
+
+    .booking-table td {
+        padding: 15px;
+        border-bottom: 1px solid #1a1a1a;
+        font-size: 0.9rem;
+    }
+
+    /* --- BADGES --- */
+    .badge {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        border: 1px solid #333;
+        display: inline-block;
+    }
+    .badge-completed { border-color: #4ade80; color: #4ade80; }
+    .badge-pending { border-color: #fbbf24; color: #fbbf24; }
+    .badge-cancelled { border-color: #ff6b6b; color: #ff6b6b; }
+
+    /* --- ACTION DROPDOWN --- */
+    .action-cell {
+        position: relative;
+        width: 50px;
+    }
+
+    .dots-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: #000;
+        border: 1px solid #fff;
+        min-width: 140px;
+        z-index: 100;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+        text-align: left;
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border-bottom: 1px solid #333;
+        transition: 0.2s;
+    }
+
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+        background: #fff;
+        color: #000;
+    }
+</style>
+
+<div class="bookings-container">
+    
+    <header style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-weight: 300; letter-spacing: 5px;">BOOKINGS</h1>
+    </header>
+
+    <h2>Upcoming Actions</h2>
+    
+    <% if (pendingBookings.length === 0) { %>
+        <p style="color: #666; font-style: italic;">No pending bookings.</p>
+    <% } else { %>
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>CLIENT</th>
+                    <th>DATE</th>
+                    <th>EMAIL</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% pendingBookings.forEach(book => { %>
+                <tr>
+                    <td><%= book.name %></td>
+                    <td><%= new Date(book.created_at).toLocaleDateString() %></td>
+                    <td><%= book.email %></td>
+                    <td><span class="badge badge-pending">PENDING</span></td>
+                    
+                    <td class="action-cell">
+                        <button class="dots-btn" onclick="toggleMenu('<%= book.booking_id %>')">⋮</button>
+                        
+                        <div id="menu-<%= book.booking_id %>" class="dropdown-menu">
+                            
+                            <form action="/admin/bookings/status" method="POST">
+                                <input type="hidden" name="id" value="<%= book.booking_id %>">
+                                <input type="hidden" name="status" value="completed">
+                                <button type="submit" class="dropdown-item">Mark Complete</button>
+                            </form>
+                            
+                            <form action="/admin/bookings/status" method="POST">
+                                <input type="hidden" name="id" value="<%= book.booking_id %>">
+                                <input type="hidden" name="status" value="cancelled">
+                                <button type="submit" class="dropdown-item">Cancel Booking</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } %>
+
+
+    <h2 style="color: #666;">Booking History</h2>
+
+    <% if (completedBookings.length === 0) { %>
+        <p style="color: #666; font-style: italic;">No completed history yet.</p>
+    <% } else { %>
+        <table class="booking-table" style="opacity: 0.6;">
+            <thead>
+                <tr>
+                    <th>CLIENT</th>
+                    <th>DATE</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% completedBookings.forEach(book => { %>
+                <tr>
+                    <td><%= book.name %></td>
+                    <td><%= new Date(book.created_at).toLocaleDateString() %></td>
+                    <td>
+                        <% if(book.status === 'cancelled') { %>
+                            <span class="badge badge-cancelled">CANCELLED</span>
+                        <% } else { %>
+                            <span class="badge badge-completed">DONE</span>
+                        <% } %>
+                    </td>
+                    
+                    <td class="action-cell">
+                        <button class="dots-btn" onclick="toggleMenu('hist-<%= book.booking_id %>')">⋮</button>
+                        
+                        <div id="menu-hist-<%= book.booking_id %>" class="dropdown-menu">
+                            <form action="/admin/bookings/status" method="POST">
+                                <input type="hidden" name="id" value="<%= book.booking_id %>">
+                                <input type="hidden" name="status" value="Pending">
+                                <button type="submit" class="dropdown-item">Mark Pending</button>
+                            </form>
+                            
+                            <form action="/admin/bookings/delete/<%= book.booking_id %>" method="POST" onsubmit="return confirm('Delete forever?');">
+                                <button type="submit" class="dropdown-item" style="color: #ff6b6b;">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } %>
+
+</div>
+
+<script>
+    function toggleMenu(id) {
+        // Close others
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            if(menu.id !== 'menu-' + id) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // Toggle clicked
+        const menu = document.getElementById('menu-' + id);
+        if(menu) {
+            menu.classList.toggle('show');
+        }
+    }
+
+    // Close when clicking outside
+    window.onclick = function(event) {
+        if (!event.target.matches('.dots-btn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
+
+<%- include('../partials/footer') %>

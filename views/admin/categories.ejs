@@ -1,0 +1,28 @@
+<%- include('../partials/admin_header') %>
+<div style="padding: 2rem; max-width: 800px; margin: 0 auto;">
+    <h2>Manage Categories</h2>
+
+    <div style="background: #121212; padding: 20px; border: 1px solid #333; margin-bottom: 30px;">
+        <h3 style="margin-top: 0;">+ Create New Category</h3>
+        <form action="/admin/categories/add" method="POST" style="display: flex; gap: 10px;">
+            <input type="text" name="name" placeholder="Category Name (e.g. 'Black & White')" required style="flex: 1; margin-bottom: 0;">
+            <button type="submit" class="btn" style="background: white; color: black; border: none;">Add</button>
+        </form>
+    </div>
+
+    <div style="display: grid; gap: 10px;">
+        <% categories.forEach(cat => { %>
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 15px; border-left: 3px solid #00ffcc;">
+                <div>
+                    <span style="font-size: 1.1rem; font-weight: bold;"><%= cat.name %></span>
+                    <span style="font-size: 0.8rem; color: #777; margin-left: 10px;">(<%= cat.count %> images)</span>
+                </div>
+                
+                <form action="/admin/categories/delete/<%= cat.category_id %>" method="POST" onsubmit="return confirm('Delete this category? Images will remain but lose this tag.');">
+                    <button type="submit" style="background: transparent; border: 1px solid #ff4444; color: #ff4444; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Delete</button>
+                </form>
+            </div>
+        <% }) %>
+    </div>
+</div>
+<%- include('../partials/footer') %>

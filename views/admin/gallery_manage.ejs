@@ -1,0 +1,41 @@
+<%- include('../partials/admin_header') %>
+<div style="padding: 2rem;">
+    <h2>Manage Gallery</h2>
+    
+    <div style="margin-bottom: 20px;">
+        <a href="/admin/gallery/upload" class="btn">Upload New Photo</a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <p style="color: red;">Error deleting image. Please try again.</p>
+    <% } %>
+
+    <div class="gallery-grid">
+        <% images.forEach(img => { %>
+            <div class="gallery-item" style="position: relative; border: 1px solid #333;">
+                
+                <img src="/gallery/<%= img.filename %>" alt="<%= img.caption %>" style="width: 100%; height: 200px; object-fit: cover; opacity: 1;">
+                
+                <div style="padding: 10px; background: #121212;">
+                    <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">
+                        <%= img.category_name || 'No Category' %>
+                    </p>
+                    <p style="font-size: 0.9rem; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <%= img.caption || 'No Caption' %>
+                    </p>
+                    
+                    <form action="/admin/gallery/delete/<%= img.item_id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this image?');">
+                        <button type="submit" style="background: red; color: white; border: none; padding: 5px 10px; cursor: pointer; width: 100%;">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+    
+    <% if (images.length === 0) { %>
+        <p style="color: #666; font-style: italic; margin-top: 2rem;">No images found in the gallery.</p>
+    <% } %>
+</div>
+<%- include('../partials/footer') %>

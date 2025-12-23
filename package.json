@@ -1,0 +1,56 @@
+{
+
+  "name": "lemiverse-photos",
+
+  "version": "1.0.0",
+
+  "description": "Photography Site",
+
+  "main": "app.js",
+
+  "dependencies": {
+
+    "bcrypt": "^6.0.0",
+
+    "body-parser": "^2.2.1",
+
+    "dotenv": "^17.2.3",
+
+    "ejs": "^3.1.10",
+
+    "express": "^5.2.1",
+
+    "express-session": "^1.18.2",
+
+    "multer": "^2.0.2",
+
+    "resend": "^6.5.2",
+
+    "sqlite": "^5.1.1",
+
+    "sqlite3": "^5.1.7"
+
+  },
+
+  "scripts": {
+
+    "db:file": "node database/db.js && echo \"--- DB File Script Finished ---\"",
+
+    "db:init": "node database/setup.js && node database/migrate_sales.js && node database/emailDB.js && echo \"--- Database Init & Migration Complete ---\"",
+
+    "dish": "node app.js && echo \"--- App/Server Stopped ---\""
+
+  },
+
+  "keywords": [
+
+    "photos"
+
+  ],
+
+  "author": "ThatGirlPhotographer",
+
+  "license": "GPL-3.0-or-later"
+
+}
+

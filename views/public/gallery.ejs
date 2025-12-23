@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+
+<style>
+    /* Main Container */
+    .gallery-container {
+        padding: 2rem;
+    }
+
+    /* Fix for the buttons */
+    .category-buttons {
+        display: flex;       /* Aligns items in a row */
+        flex-wrap: wrap;     /* Key Fix: Allows buttons to drop to next line on mobile */
+        gap: 10px;           /* Adds space between buttons vertically and horizontally */
+        margin-bottom: 2rem;
+    }
+
+    /* Ensuring the buttons look good */
+    .category-buttons .btn {
+        display: inline-block;
+        padding: 8px 16px;
+        border: 1px solid white; /* Assuming you want the outline style */
+        text-decoration: none;
+        white-space: nowrap;     /* Prevents text inside button from breaking weirdly */
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 600px) {
+        .gallery-container {
+            padding: 1rem; /* Less padding on small screens */
+        }
+        
+        /* Optional: Center buttons on mobile */
+        .category-buttons {
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="gallery-container">
+    <h2>Gallery</h2>
+    
+    <div class="category-buttons">
+        <a href="/gallery" class="btn">All</a>
+        <% categories.forEach(cat => { %>
+            <a href="/gallery?cat=<%= cat.category_id %>" class="btn"><%= cat.name %></a>
+        <% }) %>
+    </div>
+
+    <div class="gallery-grid">
+        <% images.forEach(img => { %>
+            <div class="gallery-item">
+                <img src="/gallery/<%= img.filename %>" alt="<%= img.caption %>">
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

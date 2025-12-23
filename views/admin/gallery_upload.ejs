@@ -1,0 +1,21 @@
+<%- include('../partials/admin_header') %>
+<div style="max-width: 600px; margin: 2rem auto;">
+    <h2>Upload Photo</h2>
+    <form action="/admin/gallery/upload" method="POST" enctype="multipart/form-data">
+        <label>Image File</label>
+        <input type="file" name="image" required>
+        
+        <label>Caption</label>
+        <input type="text" name="caption">
+        
+        <label>Category</label>
+        <select name="category_id">
+            <% categories.forEach(cat => { %>
+                <option value="<%= cat.category_id %>"><%= cat.name %></option>
+            <% }) %>
+        </select>
+        
+        <button type="submit" class="btn" style="background: white; color: black; width: 100%;">Upload</button>
+    </form>
+</div>
+<%- include('../partials/footer') %>

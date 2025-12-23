@@ -1,0 +1,84 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+<style>
+  .custom-footer {
+    padding: 3rem 1rem;
+    text-align: center;
+    background-color: #000; /* Black background */
+    color: #fff; /* White text */
+  }
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Ensures horizontal centering */
+    justify-content: center;
+    gap: 1.5rem; /* Space between title, icons, and copyright */
+  }
+
+  .footer-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  .social-icons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem; /* Space between the icons */
+  }
+
+  .social-icon {
+    color: #ffffff !important; /* Force White Color */
+    font-size: 2rem; /* Bigger Icons (approx 32px) */
+    text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s;
+  }
+
+  .social-icon:hover {
+    opacity: 0.7;
+    transform: scale(1.1); /* Slight pop effect */
+  }
+
+  .copyright-text {
+    font-size: 0.8rem;
+    color: #888; /* Grey color for copyright */
+  }
+</style>
+
+<footer class="custom-footer">
+  <div class="footer-content">
+    
+    <div class="footer-title">
+      <%= settings.siteName %>
+    </div>
+
+    <div class="social-icons-container">
+      <a href="<%- settings.facebook || `https://www.facebook.com` %>" target="_blank" rel="noreferrer" class="social-icon">
+        <i class="fab fa-facebook"></i>
+      </a>
+      
+      <a href="<%- settings.instagram_link || `https://www.instagram.com` %>" target="_blank" rel="noreferrer" class="social-icon">
+        <i class="fab fa-instagram"></i>
+      </a>
+    </div>
+
+    <div class="copyright-text">
+      &copy; <%= new Date().getFullYear() %> <%= settings.site_title || 'Darkroom Photography' %>. All rights reserved.
+    </div>
+
+
+    <!-- TrustBox widget - Review Collector -->
+<div class="trustpilot-widget" data-locale="en-US" data-template-id="56278e9abfbbba0bdcd568bc" data-businessunit-id="6935d8dcf444175f88990032" data-style-height="52px" data-style-width="100%" data-token="6ac202f5-6723-404f-a4f7-9b16d3bf3666">
+  <a href="https://www.trustpilot.com/review/photos.lemiverse.win" target="_blank" rel="noopener">Trustpilot</a>
+</div>
+<!-- End TrustBox widget -->
+
+  </div>
+</footer>
+
+
+
+
+
