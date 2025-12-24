@@ -1,5 +1,5 @@
 # Use the official Node.js long-term support image
-FROM node:20-alpine
+FROM node:25-alpine
 
 # Install build dependencies (needed for sqlite3 and bcrypt)
 RUN apk add --no-cache python3 make g++
