@@ -54,7 +54,7 @@ async function setup() {
         const hash = await bcrypt.hash('lemisphotos_lemi25!', 10);
         await db.run(`INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)`, ['lemi', hash]);
         
-        await db.run(`INSERT OR IGNORE INTO categories (name) VALUES ('Portraits'), ('Outdoors'), ('Animals)`);
+        await db.run(`INSERT OR IGNORE INTO categories (name) VALUES ('Portraits'), ('Outdoors'), ('Animals')`);
         
         await db.run(`INSERT OR IGNORE INTO services (title, description, price) VALUES 
             ('Portrait Session', '1 Hour Studio', '£200')`);
