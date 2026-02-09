@@ -178,55 +178,66 @@ body {
 </style>
 
 <div class="pricing-wrapper">
-    <% services.forEach((service, index) => { 
-        let headerImg = 'http://www.pixeden.com/media/k2/galleries/343/002-city-vector-background-town-vol2.jpg';
-        let iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
-        
-        if (index % 3 === 1) { 
-            // Blue Card Theme
-            headerImg = 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=600&q=80';
-            iconImg = 'https://img.icons8.com/ios-filled/100/6B6ECC/camera--v1.png';
-        } else if (index % 3 === 2) { 
-            // Green Card Theme
-            headerImg = 'https://c7.uihere.com/files/859/510/385/abstract-forest-landscape.jpg';
-            iconImg = 'https://img.icons8.com/ios-filled/100/81B77B/camera--v1.png';
-        } else {
-             // Pink Card Theme (Default)
-             iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
-        }
-    %>
-
-    <section class="card">
-        <div class="card_inner">
-            <div class="card_inner__circle">
-                <img src="<%= iconImg %>">
-            </div>
-            <div class="card_inner__header">
-                <img src="<%= headerImg %>">
-            </div>
-            <div class="card_inner__content">
-                <div class="title"><%= service.title %></div>
-                
-                <div class="price-container">
-                    <% if (service.is_on_sale && service.sale_price) { %>
-                        <span class="original-price-crossed"><%= service.price %></span>
-                        <span class="sale-active-price"><%= service.sale_price %></span> 
-                    <% } else { %>
-                        <div class="price"><%= service.price %></div>
-                    <% } %>
-                </div>
-
-                <div class="text"><%= service.description %></div>
-            </div>
-            <div class="card_inner__cta">
-                <a href="/contact">
-                    <button><span>Book Now</span></button>
-                </a>
-            </div>
+    <% if (services && services.length === 0) { %>
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; width: 100%; flex-direction: column;">
+            <h1 style="color: white; font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 48px; margin: 0; text-align: center;">
+                No Services Available
+            </h1>
+            <p style="color: rgba(255, 255, 255, 0.7); font-size: 18px; margin-top: 20px; text-align: center;">
+                Please check back soon for our services.
+            </p>
         </div>
-    </section>
+    <% } else { %>
+        <% services.forEach((service, index) => { 
+            let headerImg = 'http://www.pixeden.com/media/k2/galleries/343/002-city-vector-background-town-vol2.jpg';
+            let iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
+            
+            if (index % 3 === 1) { 
+                // Blue Card Theme
+                headerImg = 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=600&q=80';
+                iconImg = 'https://img.icons8.com/ios-filled/100/6B6ECC/camera--v1.png';
+            } else if (index % 3 === 2) { 
+                // Green Card Theme
+                headerImg = 'https://c7.uihere.com/files/859/510/385/abstract-forest-landscape.jpg';
+                iconImg = 'https://img.icons8.com/ios-filled/100/81B77B/camera--v1.png';
+            } else {
+                 // Pink Card Theme (Default)
+                 iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
+            }
+        %>
 
-    <% }) %>
+        <section class="card">
+            <div class="card_inner">
+                <div class="card_inner__circle">
+                    <img src="<%= iconImg %>">
+                </div>
+                <div class="card_inner__header">
+                    <img src="<%= headerImg %>">
+                </div>
+                <div class="card_inner__content">
+                    <div class="title"><%= service.title %></div>
+                    
+                    <div class="price-container">
+                        <% if (service.is_on_sale && service.sale_price) { %>
+                            <span class="original-price-crossed"><%= service.price %></span>
+                            <span class="sale-active-price"><%= service.sale_price %></span> 
+                        <% } else { %>
+                            <div class="price"><%= service.price %></div>
+                        <% } %>
+                    </div>
+
+                    <div class="text"><%= service.description %></div>
+                </div>
+                <div class="card_inner__cta">
+                    <a href="/contact">
+                        <button><span>Book Now</span></button>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <% }) %>
+    <% } %>
 </div>
 
 <%- include('../partials/footer') %>
