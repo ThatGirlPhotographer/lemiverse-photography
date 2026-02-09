@@ -4,6 +4,7 @@
     --text-white: #ffffff;
     --border-color: #333333;
     --accent: #e0e0e0;
+    font-weight: bold;
 }
 
 body {
@@ -24,9 +25,10 @@ nav {
     top: 0;
     z-index: 100;
     border-bottom: 1px solid var(--border-color);
+    font-size: 1.4rem;
 }
 nav ul { display: flex; list-style: none; gap: 2rem; margin: 0; }
-nav a { color: var(--text-white); text-decoration: none; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; transition: 0.3s; }
+nav a { color: var(--text-white); text-decoration: none; text-transform: uppercase; font-size: 1.2rem; letter-spacing: 1px; transition: 0.3s; }
 nav a:hover { color: #888; }
 .hamburger { display: none; cursor: pointer; font-size: 1.5rem; }
 
