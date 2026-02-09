@@ -64,7 +64,7 @@ app.use('/admin/services', serviceRoutes);
 app.use('/admin/categories', categoryRoutes);
 app.use('/mail', mailRoutes);
 
-const PORT = 6754;
+const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
