@@ -1,10 +1,18 @@
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = path.resolve(__dirname, 'email.sqlite');
+const dbPath = path.resolve(__dirname, '..', 'store', 'email.sqlite');
 
 let dbInstance;
+
+if (fs.existsSync(dbPath)) {
+    console.log('Email Database exists at:', dbPath);
+} else {
+    console.log('Email Database does not exist at:', dbPath, 'Creating new database...');
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+}
 
 async function getDB() {
     if (dbInstance) return dbInstance;
