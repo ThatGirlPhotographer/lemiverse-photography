@@ -17,7 +17,7 @@ const isAuth = (req, res, next) => {
 
 // Upload Routes
 router.get('/upload', isAuth, controller.getUpload);
-router.post('/upload', isAuth, upload.single('image'), controller.postUpload);
+router.post('/upload', isAuth, upload.array('image', 15), controller.postUpload);
 
 // Management Routes
 router.get('/manage', isAuth, controller.getManage);

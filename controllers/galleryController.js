@@ -1,7 +1,7 @@
 const getDB = require('../database/db');
 const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp'); // Make sure to npm install sharp
+const sharp = require('sharp');
 
 // Path to your gallery folder
 const galleryDir = path.join(__dirname, '..', 'public', 'gallery');
@@ -18,48 +18,51 @@ exports.getUpload = async (req, res) => {
 };
 
 exports.postUpload = async (req, res) => {
-    if (!req.file) return res.redirect('/admin/gallery/upload?error=nofile');
+    // Note: Since we are uploading multiple, we check req.files instead of req.file
+    if (!req.files || req.files.length === 0) {
+        return res.redirect('/admin/gallery/upload?error=nofile');
+    }
     
     const db = await getDB();
     const { caption, category_id } = req.body;
 
-    // Create a unique base name to avoid collisions and force .webp extension
-    const baseName = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const finalFilename = `${baseName}.webp`;
-    
-    const originalPath = req.file.path; // Multer's temp file path
-
     try {
-        // 1. Process MAIN Image (Optimized for Viewer)
-        // Max width 1200px, preserves aspect ratio, converts to WebP
-        await sharp(originalPath)
-            .resize(1200, null, { withoutEnlargement: true })
-            .webp({ quality: 80 })
-            .toFile(path.join(galleryDir, finalFilename));
+        // Process all images in parallel
+        await Promise.all(req.files.map(async (file) => {
+            // Create a unique base name for each file in the loop
+            const baseName = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            const finalFilename = `${baseName}.webp`;
+            const originalPath = file.path;
 
-        // 2. Process THUMBNAIL (Optimized for Gallery Grid)
-        // 400x400 square crop, lower quality for speed
-        await sharp(originalPath)
-            .resize(400, 400, { fit: 'cover' })
-            .webp({ quality: 60 })
-            .toFile(path.join(galleryDir, `thumb_${finalFilename}`));
+            try {
+                // 1. Process MAIN Image
+                await sharp(originalPath)
+                    .resize(1200, null, { withoutEnlargement: true })
+                    .webp({ quality: 80 })
+                    .toFile(path.join(galleryDir, finalFilename));
 
-        // 3. Cleanup: Delete the original heavy temp file
-        if (fs.existsSync(originalPath)) {
-            fs.unlinkSync(originalPath);
-        }
+                // 2. Process THUMBNAIL
+                await sharp(originalPath)
+                    .resize(400, 400, { fit: 'cover' })
+                    .webp({ quality: 60 })
+                    .toFile(path.join(galleryDir, `thumb_${finalFilename}`));
 
-        // 4. Save to Database
-        await db.run(
-            'INSERT INTO gallery_items (filename, caption, category_id) VALUES (?, ?, ?)', 
-            [finalFilename, caption, category_id]
-        );
+                // 3. Save to Database (the same caption is applied to all)
+                await db.run(
+                    'INSERT INTO gallery_items (filename, caption, category_id) VALUES (?, ?, ?)', 
+                    [finalFilename, caption, category_id]
+                );
+            } finally {
+                // 4. Cleanup: Delete temp file regardless of Sharp's success/failure
+                if (fs.existsSync(originalPath)) {
+                    fs.unlinkSync(originalPath);
+                }
+            }
+        }));
             
         res.redirect('/admin/gallery/manage');
     } catch (err) {
-        console.error("Sharp Image Processing Error:", err);
-        // Clean up temp file even if processing fails
-        if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+        console.error("Batch Processing Error:", err);
         res.redirect('/admin/gallery/upload?error=processing');
     }
 };
@@ -86,7 +89,6 @@ exports.deleteImage = async (req, res) => {
             const mainFilePath = path.join(galleryDir, image.filename);
             const thumbFilePath = path.join(galleryDir, `thumb_${image.filename}`);
 
-            // Delete both optimized files
             if (fs.existsSync(mainFilePath)) fs.unlinkSync(mainFilePath);
             if (fs.existsSync(thumbFilePath)) fs.unlinkSync(thumbFilePath);
 
