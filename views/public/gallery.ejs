@@ -1,40 +1,86 @@
 <%- include('../partials/header') %>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
 <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700,300" rel="stylesheet">
 
 <style>
-    /* Main Container */
-    .gallery-container {
-        padding: 2rem;
+    .gallery-container { padding: 2rem; }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
     }
 
-    /* Fix for the buttons */
+    /* 1. Optimized Gallery Item & Skeleton */
+    .gallery-item {
+        position: relative;
+        height: 250px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        overflow: hidden;
+        /* content-visibility: auto tells browser to skip rendering logic when off-screen */
+        content-visibility: auto;
+        contain-intrinsic-size: 250px;
+    }
+
+    /* Shimmer effect for the skeleton placeholder */
+    .skeleton {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+        z-index: 1;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    .gallery-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease, opacity 0.4s ease-in-out;
+        opacity: 0; /* Hidden until loaded */
+        position: relative;
+        z-index: 2;
+        border-radius: 8px;
+    }
+
+    .gallery-img.loaded {
+        opacity: 1;
+    }
+
+    .gallery-item:hover .gallery-img.loaded {
+        transform: scale(1.05);
+    }
+
+    /* Keep your original button styling */
     .category-buttons {
-        display: flex;       /* Aligns items in a row */
-        flex-wrap: wrap;     /* Key Fix: Allows buttons to drop to next line on mobile */
-        gap: 10px;           /* Adds space between buttons vertically and horizontally */
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
         margin-bottom: 2rem;
     }
 
-    /* Ensuring the buttons look good */
     .category-buttons .btn {
         display: inline-block;
         padding: 8px 16px;
-        border: 1px solid white; /* Assuming you want the outline style */
+        border: 1px solid white;
         text-decoration: none;
-        white-space: nowrap;     /* Prevents text inside button from breaking weirdly */
+        color: white;
     }
 
-    /* Mobile adjustments */
     @media (max-width: 600px) {
-        .gallery-container {
-            padding: 1rem; /* Less padding on small screens */
-        }
-        
-        /* Optional: Center buttons on mobile */
-        .category-buttons {
-            justify-content: center;
-        }
+        .gallery-container { padding: 1rem; }
+        .category-buttons { justify-content: center; }
     }
 </style>
 
@@ -50,22 +96,68 @@
 
     <div class="gallery-grid">
         <% if (images && images.length === 0) { %>
-            <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh; width: 100%; flex-direction: column; grid-column: 1 / -1;">
-                <h1 style="color: white; font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 48px; margin: 0; text-align: center;">
-                    Check Back Soon
-                </h1>
-                <p style="color: rgba(255, 255, 255, 0.7); font-family: 'Yanone Kaffeesatz', sans-serif; font-size: 18px; margin-top: 10px; text-align: center;">
-                    New fresh images coming soon.
-                </p>
+            <div style="grid-column: 1 / -1; text-align: center; padding-top: 50px;">
+                <h1 style="color: white; font-family: 'Yanone Kaffeesatz';">Check Back Soon</h1>
+                <p style="color: rgba(255,255,255,0.7);">New fresh images coming soon.</p>
             </div>
         <% } else { %>
             <% images.forEach(img => { %>
                 <div class="gallery-item">
-                    <img src="/gallery/<%= img.filename %>" alt="<%= img.caption %>">
+                    <div class="skeleton"></div>
+                    
+                    <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="gallery1">
+                        <img class="gallery-img" 
+                             data-src="/gallery/thumb_<%= img.filename %>" 
+                             alt="<%= img.caption %>">
+                    </a>
                 </div>
             <% }) %>
         <% } %>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script type="text/javascript">
+    // 1. Initialize Lightbox for viewing high-res photos
+    const lightbox = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        loop: true
+    });
+
+    // 2. Intersection Observer for fast scrolling/lazy loading
+    document.addEventListener("DOMContentLoaded", () => {
+        const images = document.querySelectorAll('.gallery-img');
+        
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    const container = img.closest('.gallery-item');
+                    const skeleton = container.querySelector('.skeleton');
+                    
+                    // Trigger the download of the thumbnail
+                    img.src = img.dataset.src;
+                    
+                    img.onload = () => {
+                        img.classList.add('loaded');
+                        // Small timeout to allow fade-in before removing skeleton
+                        setTimeout(() => {
+                            if(skeleton) skeleton.remove();
+                        }, 400); 
+                    };
+
+                    // Stop watching this specific image
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '200px 0px', // Start loading images 200px before they hit the screen
+            threshold: 0.01
+        });
+
+        images.forEach(img => imageObserver.observe(img));
+    });
+</script>
 
 <%- include('../partials/footer') %>

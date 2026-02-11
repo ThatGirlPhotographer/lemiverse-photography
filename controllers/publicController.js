@@ -7,20 +7,33 @@ exports.getGallery = async (req, res) => {
         const db = await getDB();
         const category = req.query.cat;
         
-        let query = 'SELECT * FROM gallery_items ORDER BY upload_date DESC';
+        // Base query - selecting only what we need for performance
+        let query = 'SELECT item_id, filename, caption, category_id FROM gallery_items ORDER BY upload_date DESC';
         let params = [];
 
         if (category) {
-            query = 'SELECT * FROM gallery_items WHERE category_id = ? ORDER BY upload_date DESC';
+            query = 'SELECT item_id, filename, caption, category_id FROM gallery_items WHERE category_id = ? ORDER BY upload_date DESC';
             params = [category];
         }
 
         const images = await db.all(query, params);
         const categories = await db.all('SELECT * FROM categories');
-        res.render('public/gallery', { title: 'Gallery', images, categories });
+
+        /* Note: We send 'images' to the view. 
+           In the EJS, you will use:
+           - thumb_<%= img.filename %> for the grid (fast loading)
+           - <%= img.filename %> for the GLightbox viewer (high quality)
+        */
+
+        res.render('public/gallery', { 
+            title: 'Gallery', 
+            images, 
+            categories,
+            selectedCat: category // Useful for adding an 'active' class to buttons
+        });
     } catch (err) {
         console.error("Gallery Error:", err);
-        res.status(500).send("Error loading gallery");
+        res.status(500).render('error', { message: "Error loading gallery" });
     }
 };
 
@@ -36,6 +49,7 @@ exports.getServices = async (req, res) => {
 };
 
 exports.getContact = (req, res) => res.render('public/contact', { title: 'Contact' });
+
 exports.postContact = async (req, res) => {
     const { name, email, message } = req.body;
     
