@@ -3,35 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= settings.site_title %> | <%= (typeof title !== 'undefined' ? title : 'Page') %></title>
     
-   <meta name="title" content="<%= settings.meta_title %> | <%= (typeof title !== 'undefined' ? title : 'Page') %>">
+    <title><%= settings.site_title %> | <%= (typeof title !== 'undefined' ? title : 'Photography') %></title>
+    
+    <meta name="title" content="<%= settings.site_title %> | <%= (typeof title !== 'undefined' ? title : settings.meta_title) %>">
     <meta name="description" content="<%= settings.meta_description %>">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="<%= settings.meta_title %> | <%= (typeof title !== 'undefined' ? title : 'Page') %>">
-    <meta property="og:description" content="<%= settings.meta_description %>">
     <meta property="og:url" content="https://photos.lemiverse.win/">
+    <meta property="og:title" content="<%= settings.site_title %> | <%= (typeof title !== 'undefined' ? title : 'Gallery') %>">
+    <meta property="og:description" content="<%= settings.meta_description %>">
+    <meta property="og:image" content="https://photos.lemiverse.win/img/og-preview.jpg"> 
 
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://photos.lemiverse.win/">
-    <meta property="twitter:title" content="<%= settings.meta_title %> | <%= (typeof title !== 'undefined' ? title : 'Page') %>">
+    <meta property="twitter:title" content="<%= settings.site_title %> | <%= (typeof title !== 'undefined' ? title : 'Gallery') %>">
     <meta property="twitter:description" content="<%= settings.meta_description %>">
+    <meta property="twitter:image" content="https://photos.lemiverse.win/img/og-preview.jpg">
 
     <meta name="theme-color" content="#00ffcc">
-
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
     <nav>
-        <div class="logo"><a href="/"><%= settings.site_title %></a></div>
-        <div class="hamburger" onclick="document.querySelector('ul').classList.toggle('active')">☰</div>
+        <div class="logo">
+            <a href="/"><%= settings.site_title %></a>
+        </div>
+        
+        <div class="hamburger" onclick="document.querySelector('nav ul').classList.toggle('active')">☰</div>
+        
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/gallery">Gallery</a></li>
             <li><a href="/services">Services</a></li>
             <li><a href="/contact">Contact</a></li>
-            <% if(user) { %>
+            <% if(typeof user !== 'undefined' && user) { %>
                 <li><a href="/admin/dashboard" style="color: #00ffcc;">Dashboard</a></li>
             <% } %>
         </ul>
