@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= settings.site_title %> | Photography</title>
+    <title><%= settings.site_title %> | <%= (typeof title !== 'undefined' ? title : 'Page') %></title>
     
    <meta name="title" content="<%= settings.meta_title %>">
     <meta name="description" content="<%= settings.meta_description %>">
