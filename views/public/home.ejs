@@ -1,8 +1,156 @@
 <%- include('../partials/header') %>
-<div class="hero">
-    <h1>CAPTURING THE UNSEEN</h1>
-    <p>Photography Portfolio Coded by Lemi</p>
-    <br>
-    <a href="/gallery" class="btn">View Gallery</a>
+
+<style>
+    :root {
+        --dark: #0a0a0a;
+        --accent: #ffffff;
+        --gold: #c5a059;
+    }
+
+    .cinematic-hero {
+        position: relative;
+        height: 140vh; 
+        background: var(--dark);
+    }
+
+    .hero-bg-wrapper {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
+        mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+    }
+
+    .hero-image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url('http://www.pixeden.com/media/k2/galleries/343/002-city-vector-background-town-vol2.jpg');
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.5) grayscale(20%);
+    }
+
+    .hero-content {
+        position: absolute;
+        top: 45%; 
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        text-align: center;
+        width: 90%;
+    }
+
+    .eyebrow {
+        font-size: 0.75rem;
+        letter-spacing: 0.5rem;
+        color: var(--gold);
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+    }
+
+    .main-title {
+        font-size: clamp(2.5rem, 8vw, 6rem);
+        line-height: 1.1;
+        font-weight: 800;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin: 0;
+        min-height: 2.2em; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .dynamic-txt {
+        font-family: serif; 
+        font-style: italic;
+        font-weight: 300;
+        color: var(--gold);
+        display: inline-block;
+        min-width: 2px;
+    }
+
+    .hero-footer {
+        margin-top: 4rem; 
+    }
+
+    /* Cinematic Button Styling */
+    .btn {
+        padding: 1.2rem 3rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        color: var(--accent);
+        text-decoration: none;
+        letter-spacing: 0.3rem;
+        font-size: 0.7rem;
+        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        background: transparent;
+        display: inline-block;
+    }
+
+    .btn:hover {
+        background: var(--accent);
+        color: var(--dark);
+        border-color: var(--accent);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+</style>
+
+<div class="cinematic-hero">
+    <div class="hero-bg-wrapper">
+        <div class="hero-image"></div>
+    </div>
+    
+    <div class="hero-content">
+        <p class="eyebrow">PORTFOLIO BY LEMI — 2026</p>
+        <h1 class="main-title">
+            CAPTURING THE <br>
+            <span class="dynamic-txt" id="typewriter">&nbsp;</span>
+        </h1>
+        <div class="hero-footer">
+            <a href="/gallery" class="btn">VIEW WORK</a>
+        </div>
+    </div>
 </div>
+
 <%- include('../partials/footer') %>
+
+<script>
+const words = ["UNSEEN", "AUTHENTIC", "MOMENTS", "STORY", "EMOTIONS", "RETRO", "VINTAGE", "SOUL"];
+let wordIdx = 0;
+let charIdx = 0;
+let isDeleting = false;
+
+function typeEffect() {
+    const el = document.getElementById("typewriter");
+    const currentFullWord = words[wordIdx];
+
+    if (isDeleting) {
+        charIdx--;
+    } else {
+        charIdx++;
+    }
+
+    const currentDisplay = currentFullWord.substring(0, charIdx);
+    el.innerHTML = currentDisplay || "&nbsp;";
+
+    let typingSpeed = isDeleting ? 100 : 150;
+
+    if (!isDeleting && charIdx === currentFullWord.length) {
+        typingSpeed = 2000; 
+        isDeleting = true;
+    } else if (isDeleting && charIdx === 0) {
+        isDeleting = false;
+        wordIdx = (wordIdx + 1) % words.length;
+        typingSpeed = 500;
+    }
+
+    setTimeout(typeEffect, typingSpeed);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(typeEffect, 1000); 
+});
+</script>
