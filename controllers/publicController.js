@@ -2,6 +2,8 @@ const getDB = require('../database/db');
 
 exports.getHome = (req, res) => res.render('public/home', { title: 'Home' });
 
+exports.getAbout = (req, res) => res.render('public/about', { title: 'About' });
+
 exports.getGallery = async (req, res) => {
     try {
         const db = await getDB();

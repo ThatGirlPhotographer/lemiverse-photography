@@ -1,0 +1,189 @@
+<%- include('../partials/header') %>
+
+<style>
+  @import url(https://fonts.googleapis.com/css?family=Lato:100,300,400);
+
+  :root {
+    --dark: #000;
+    --accent: #fff;
+    --gold: #c5a059;
+  }
+
+  /* --- WRAPPER --- */
+  .about-page-wrapper {
+    background-color: #000 !important;
+    color: #fff;
+    padding: 80px 0;
+    min-height: 100vh;
+    font-family: 'Lato', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .about-page-wrapper header {
+    position: relative;
+    margin: 20px 0 10px 0;
+    font-size: 2.3em;
+    text-align: center;
+    letter-spacing: 7px;
+    color: #ffffff;
+    font-weight: 300;
+    text-transform: uppercase;
+  }
+
+  .about-page-wrapper .subtext {
+    text-align: center;
+    color: #aaa;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    margin-bottom: 80px;
+    max-width: 600px;
+    padding: 0 20px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* --- ROADMAP CONTAINER --- */
+  .roadmap-container {
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-left: 40px; /* Space for the line */
+  }
+
+  /* Vertical White Spine */
+  .roadmap-container::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #fff;
+  }
+
+  .roadmap-item {
+    position: relative;
+    margin-bottom: -1px; /* Merges borders like your form */
+    transition: all 0.3s ease;
+  }
+
+  /* The Pointer Line */
+  .roadmap-item::before {
+    content: '';
+    position: absolute;
+    left: -40px; /* Connects from the spine */
+    top: 25px; /* Aligns with the title center */
+    width: 40px;
+    height: 1px;
+    background: #fff;
+  }
+
+  /* The Content Box */
+  .roadmap-box {
+    border: 1px solid #fff;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+    cursor: crosshair;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .roadmap-box:hover {
+    background: #1a1a1a;
+    z-index: 10;
+  }
+
+  .roadmap-date {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  .roadmap-title {
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* Details Reveal */
+  .roadmap-details {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .roadmap-item:hover .roadmap-details {
+    max-height: 150px;
+    opacity: 1;
+    padding-top: 15px;
+  }
+
+  .roadmap-details p {
+    color: #aaa;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Top/Bottom Border Radius matching your form */
+  .roadmap-item:first-child .roadmap-box {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+  .roadmap-item:last-child .roadmap-box {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  @media (max-width: 480px) {
+    .roadmap-container { padding-left: 30px; }
+    .roadmap-item::before { width: 30px; left: -30px; }
+  }
+</style>
+
+<div class="about-page-wrapper">
+  <header>THE CHRONICLE</header>
+  <p class="subtext">
+    A timeline of vision, light, and the pursuit of the perfect frame.
+  </p>
+
+  <div class="roadmap-container" id="roadmap-root">
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  const journeyData = [
+    { date: "JAN 2024", title: "THE URBAN SHIFT", detail: "Transitioned to high-contrast street photography, capturing the silent geometry of city nights." },
+    { date: "MAR 2024", title: "LEICA SYSTEM", detail: "Adopted rangefinder optics to prioritize speed and intentionality in candid moments." },
+    { date: "AUG 2024", title: "EXHIBITION: VOID", detail: "Showcased a solo series exploring negative space in brutalist architecture." },
+    { date: "DEC 2024", title: "EDITORIAL VOGUE", detail: "Commissioned for a feature on modern architectural textures and light play." },
+    { date: "FEB 2025", title: "CINEMATIC MOTION", detail: "Began integrating 24fps motion stills to bridge the gap between photo and film." }
+  ];
+
+  const root = document.getElementById('roadmap-root');
+
+  function renderRoadmap() {
+    root.innerHTML = journeyData.map(item => `
+      <div class="roadmap-item">
+        <div class="roadmap-box">
+          <span class="roadmap-date">${item.date}</span>
+          <h3 class="roadmap-title">${item.title}</h3>
+          <div class="roadmap-details">
+            <p>${item.detail}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.addEventListener("DOMContentLoaded", renderRoadmap);
+</script>

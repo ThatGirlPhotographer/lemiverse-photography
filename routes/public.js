@@ -4,6 +4,7 @@ const controller = require('../controllers/publicController');
 
 
 router.get('/', controller.getHome);
+router.get('/about', controller.getAbout);
 router.get('/gallery', controller.getGallery);
 router.get('/services', controller.getServices);
 router.get('/contact', controller.getContact);

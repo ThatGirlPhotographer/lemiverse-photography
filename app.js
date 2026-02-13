@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const fs = require('fs'); // Added for JSON reading
 const bodyParser = require('body-parser');
 const getDB = require('./database/db'); 
 
@@ -13,8 +14,6 @@ const settingsRoutes = require('./routes/settings');
 const serviceRoutes = require('./routes/services');
 const categoryRoutes = require('./routes/categories');
 const mailRoutes = require('./routes/mail');
-
-
 
 const app = express();
 
@@ -31,6 +30,7 @@ app.use(session({
     saveUninitialized: false
 }));
 
+// 1. Settings & Session Middleware
 app.use(async (req, res, next) => {
     res.locals.user = req.session.user || null;
 
@@ -54,6 +54,32 @@ app.use(async (req, res, next) => {
     next();
 });
 
+// 2. Maintenance Middleware (JSON Driven)
+app.use((req, res, next) => {
+    if (path.extname(req.path) || req.path.startsWith('/admin')) return next();
+    if (req.session.user) return next();
+
+    try {
+        const configPath = path.join(__dirname, 'maintenance.json');
+        if (fs.existsSync(configPath)) {
+            const maintenanceConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            
+            let page = req.path.split('/')[1] || 'home';
+
+            if (maintenanceConfig[page] === true) {
+                return res.status(503).render('error', { 
+                    errorCode: '53',
+                    errorTitle: 'RECALIBRATING', 
+                    errorDesc: 'The lens is currently being cleaned. This frame will return to focus shortly.' 
+                });
+            }
+        }
+    } catch (err) {
+        console.error("Maintenance JSON error:", err);
+    }
+    next();
+});
+
 // Mount Routes
 app.use('/', publicRoutes);
 app.use('/admin', adminRoutes);
@@ -63,6 +89,47 @@ app.use('/admin/settings', settingsRoutes);
 app.use('/admin/services', serviceRoutes);
 app.use('/admin/categories', categoryRoutes);
 app.use('/mail', mailRoutes);
+
+// --- ERROR HANDLING SECTION ---
+app.use((req, res, next) => {
+    res.status(404).render('error', { 
+        errorCode: '404', 
+        errorTitle: 'OUT OF FRAME', 
+        errorDesc: 'The subject you’re looking for has moved out of the composition.' 
+    });
+});
+
+app.use((err, req, res, next) => {
+    const statusCode = err.status || 500;
+    
+    const errorData = {
+        403: { 
+            title: 'PRIVATE COLLECTION', 
+            desc: 'This particular series is currently reserved for a private viewing.' 
+        },
+        500: { 
+            title: 'SOFT FOCUS', 
+            desc: 'The clarity shifted for a moment. We’re re-aligning the lens to find the sharpest light.' 
+        },
+        503: {
+            title: 'RECALIBRATING',
+            desc: 'The lens is currently being cleaned. This frame will return to focus shortly.'
+        },
+        default: { 
+            title: 'LOST EXPOSURE', 
+            desc: 'The light didn’t hit the sensor quite right. Let’s try another angle.' 
+        }
+    };
+
+    const content = errorData[statusCode] || errorData.default;
+    console.error(`[Error ${statusCode}]: ${err.message}`);
+
+    res.status(statusCode).render('error', { 
+        errorCode: statusCode, 
+        errorTitle: content.title, 
+        errorDesc: content.desc 
+    });
+});
 
 const PORT = 6754;
 app.listen(PORT, () => {

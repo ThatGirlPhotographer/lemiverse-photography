@@ -1,0 +1,7 @@
+{
+  "home": false,
+  "gallery": false,
+  "about": true,
+  "services": false,
+  "contact": false
+}
