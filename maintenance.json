@@ -1,7 +1,7 @@
 {
   "home": false,
   "gallery": false,
-  "about": true,
+  "about": false,
   "services": false,
   "contact": false
 }

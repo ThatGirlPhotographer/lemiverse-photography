@@ -1,6 +1,6 @@
 # V1 Photo Portfolio Site
 
-## Nickname: PhotoSite Test/exporess-photography-site
+## Nickname: EcoPhotos/exporess-photography-site
 
 ## Created: Mid 2023
 

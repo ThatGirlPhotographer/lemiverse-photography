@@ -42,148 +42,202 @@
     margin-right: auto;
   }
 
-  /* --- ROADMAP CONTAINER --- */
+  /* --- ROADMAP --- */
   .roadmap-container {
     position: relative;
     width: 90%;
     max-width: 600px;
-    margin: 0 auto;
-    padding-left: 40px; /* Space for the line */
+    margin: 0 auto 100px auto; /* Added margin-bottom to separate from Kit */
+    padding-left: 40px; 
   }
 
-  /* Vertical White Spine */
-  .roadmap-container::before {
+  .roadmap-item { position: relative; margin-bottom: -1px; transition: all 0.3s ease; }
+
+  .roadmap-item:not(:last-child)::after {
     content: '';
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: #fff;
+    left: -40px; top: 25px; bottom: -25px;
+    width: 1px; background: #fff; z-index: 0;
   }
 
-  .roadmap-item {
-    position: relative;
-    margin-bottom: -1px; /* Merges borders like your form */
-    transition: all 0.3s ease;
-  }
-
-  /* The Pointer Line */
   .roadmap-item::before {
-    content: '';
-    position: absolute;
-    left: -40px; /* Connects from the spine */
-    top: 25px; /* Aligns with the title center */
-    width: 40px;
-    height: 1px;
-    background: #fff;
+    content: ''; position: absolute; left: -40px; top: 25px;
+    width: 40px; height: 1px; background: #fff;
   }
 
-  /* The Content Box */
   .roadmap-box {
-    border: 1px solid #fff;
+    border: 1px solid #fff; padding: 20px; position: relative;
+    z-index: 1; cursor: crosshair; transition: all 0.3s ease-in-out;
+  }
+
+  .roadmap-box:hover { background: #1a1a1a; }
+
+  .roadmap-date { display: block; font-size: 0.7rem; letter-spacing: 3px; color: var(--gold); margin-bottom: 5px; text-transform: uppercase; }
+  .roadmap-title { font-size: 1.1rem; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
+  .roadmap-details { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
+  .roadmap-item:hover .roadmap-details { max-height: 150px; opacity: 1; padding-top: 15px; }
+  .roadmap-details p { color: #aaa; font-size: 0.85rem; line-height: 1.6; margin: 0; }
+
+  /* --- KIT SECTION --- */
+  .kit-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .kit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .kit-card {
+    border: 1px solid #333;
     padding: 20px;
-    position: relative;
-    z-index: 1;
-    cursor: crosshair;
-    transition: all 0.3s ease-in-out;
+    text-align: center;
+    transition: border-color 0.3s ease;
   }
 
-  .roadmap-box:hover {
-    background: #1a1a1a;
-    z-index: 10;
+  .kit-card:hover {
+    border-color: var(--gold);
   }
 
-  .roadmap-date {
-    display: block;
-    font-size: 0.7rem;
-    letter-spacing: 3px;
-    color: var(--gold);
-    margin-bottom: 5px;
-    text-transform: uppercase;
+  .kit-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    filter: grayscale(100%);
+    margin-bottom: 15px;
+    transition: filter 0.3s ease;
   }
 
-  .roadmap-title {
-    font-size: 1.1rem;
-    font-weight: 400;
+  .kit-card:hover .kit-image {
+    filter: grayscale(0%);
+  }
+
+  .kit-name {
+    font-size: 0.9rem;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin: 0;
+    margin-bottom: 8px;
   }
 
-  /* Details Reveal */
-  .roadmap-details {
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  .kit-price {
+    font-size: 0.8rem;
+    color: var(--gold);
+    font-weight: 300;
   }
 
-  .roadmap-item:hover .roadmap-details {
-    max-height: 150px;
-    opacity: 1;
-    padding-top: 15px;
+  .total-cost-wrapper {
+    text-align: center;
+    border-top: 1px solid #333;
+    padding-top: 40px;
+    margin-top: 40px;
   }
 
-  .roadmap-details p {
-    color: #aaa;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    margin: 0;
+  .total-label {
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: #666;
+    text-transform: uppercase;
   }
 
-  /* Top/Bottom Border Radius matching your form */
-  .roadmap-item:first-child .roadmap-box {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-  }
-  .roadmap-item:last-child .roadmap-box {
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+  .total-amount {
+    font-size: 2rem;
+    color: #fff;
+    margin-top: 10px;
+    font-weight: 100;
   }
 
   @media (max-width: 480px) {
     .roadmap-container { padding-left: 30px; }
     .roadmap-item::before { width: 30px; left: -30px; }
+    .roadmap-item:not(:last-child)::after { left: -30px; }
   }
 </style>
 
 <div class="about-page-wrapper">
-  <header>THE CHRONICLE</header>
-  <p class="subtext">
-    A timeline of vision, light, and the pursuit of the perfect frame.
-  </p>
+  <header>ABOUT ME</header>
+  <p class="subtext">A timeline of perfecting my frame since Late 2022.</p>
 
-  <div class="roadmap-container" id="roadmap-root">
+  <div class="roadmap-container" id="roadmap-root"></div>
+
+  <section class="kit-section">
+    <header style="font-size: 1.5em; margin-bottom: 40px;">THE ARSENAL</header>
+    <div class="kit-grid" id="kit-root"></div>
+    
+    <div class="total-cost-wrapper">
+      <div class="total-label">Estimated Kit Value</div>
+      <div class="total-amount" id="total-cost">£0</div>
     </div>
+  </section>
 </div>
 
 <%- include('../partials/footer') %>
 
 <script>
+  // --- ROADMAP DATA ---
   const journeyData = [
-    { date: "JAN 2024", title: "THE URBAN SHIFT", detail: "Transitioned to high-contrast street photography, capturing the silent geometry of city nights." },
-    { date: "MAR 2024", title: "LEICA SYSTEM", detail: "Adopted rangefinder optics to prioritize speed and intentionality in candid moments." },
-    { date: "AUG 2024", title: "EXHIBITION: VOID", detail: "Showcased a solo series exploring negative space in brutalist architecture." },
-    { date: "DEC 2024", title: "EDITORIAL VOGUE", detail: "Commissioned for a feature on modern architectural textures and light play." },
-    { date: "FEB 2025", title: "CINEMATIC MOTION", detail: "Began integrating 24fps motion stills to bridge the gap between photo and film." }
+    { date: "JAN 2023", title: "The Start", detail: "That moment when i first discovered background blur completely blew my mind. i was just messing about with my phone camera, not taking anything seriously, but seeing that soft bokeh effect come to life—something clicked. i realized there was so much more to photography than just pointing and shooting. it was the spark that ignited everything." },
+    { date: "MAY 2023", title: "The Learning", detail: "i threw myself into experimentation with raw enthusiasm. shooting boats, buses, vehicles—anything that would stand still long enough. i was learning composition on the fly, failing constantly, but each mistake taught me something valuable. those early shots were rough, but they were mine, and that meant everything." },
+    { date: "SEP 2023-Jan 24", title: "Lights and Scenery", detail: "This period was all about unlocking the magic of light. i spent time studying how golden hour transforms a scene, how shadows tell stories. alongside that discovery, i learned to capture the soul of landscapes and started touching up my work in post-production. every edit felt like i was painting with pixels—a whole new dimension opened up." },
+    { date: "MAR 2024", title: "Landscape/Portrait", detail: "The model show was my turning point. surrounded by other creatives, something finally clicked about positioning and framing. switching between landscape and portrait modes on my phone suddenly made sense—each telling its own story. i realized that technical understanding paired with intention creates something truly special." },
+    { date: "MAY 2024", title: "Portfolio", detail: "Creating my first portfolio felt like holding my own dreams in my hands. i curated my best work, piecing together a visual narrative of who i was becoming as a photographer. it wasn't perfect, but it represented months of learning, failing, and growing. sharing it felt terrifying and exhilarating at once." },
+    { date: "SEP 2024", title: "Taste of Beauty", detail: "Holding the Canon 750D for the first time was a revelation. the weight of it, the glass, the real lens—it felt like i was finally stepping into the professional world i'd been dreaming about. those first shots were magical. suddenly i could see beauty in ways my phone never allowed. aesthetic photography went from something i admired to something i could actually create." },
+    { date: "OCT 2024", title: "The Upgrade", detail: "Getting the Canon EOS R10 was more than just a gear upgrade—it was permission to dream bigger. my hands trembled holding that mirrorless camera for the first time. the learning curve was steep and humbling, but every frustration led to breakthroughs. i was finally playing with the tools i needed to match what my eyes could see." },
+    { date: "JAN 2025", title: "The Learning Pt2", detail: "i locked myself in and really committed to understanding my camera inside-out. every button, every setting mattered. then came Photoshop—a whole new universe of creative control. suddenly i wasn't just capturing moments; i was crafting them, refining them, pushing them to become the images i'd envisioned. the technical and artistic finally merged." },
+    { date: "MAR 2025", title: "The Business", detail: "Buckfield Photography—i said it out loud and it became real. this wasn't just a hobby anymore; it was becoming a dream worth pursuing seriously. planning a business around something i loved terrified and energized me equally. i was finally believing that this passion could mean something, not just for me, but for others too." },
+    { date: "JUN 2025", title: "The Game", detail: "Photoshop mastery arrived alongside a creative awakening. i started chasing cinematic compositions, moody tones, that storytelling quality that makes you feel something when you see an image. suddenly i wasn't just taking photos—i was directing emotions through the frame. every shot had intention, mood, atmosphere. this was what i'd been building toward." },
+    { date: "AUG 2025", title: "Galaxy amongst the frame", detail: "Then Galaxy arrived, and everything shifted. this little furball with the curious eyes became my muse and my teacher. photographing him taught me patience, timing, connection—you can't fake authenticity with animals. his presence sparked a whole new passion for pet and animal photography. he wasn't just a companion; he was the catalyst for my next evolution as a photographer." },
+    { date: "JAN 2026", title: "The Launch", detail: "January 2026 came with the official launch of Lemiverse Photography, and it felt like a resurrection. after countless failed portfolio attempts that weighed on me, we finally got it right. this new identity, this new brand—it represents everything i've learned, every stumble, every breakthrough. it's not just a business launch; it's me stepping fully into who i've become as a photographer and artist." }
+
   ];
 
-  const root = document.getElementById('roadmap-root');
+  // --- KIT DATA ---
+
+  const kitData = [
+    { name: "Canon EOS R10 Mirrorless Camera", price: 999.99, image: "https://i1.adis.ws/i/canon/5331C044_EOS-R10_03?w=608&bg=rgb(245,246,246)&fmt=webp&qlt=80&sm=aspect&aspect=4:3" },
+    { name: "Canon RF-S 10-18mm F4.5-6.3 IS STM Lens", price: 100, image: "https://img.photographyblog.com/reviews/canon_rf_s_10_18mm_f4_5_6_3_is_stm/canon_rf_s_10_18mm_f4_5_6_3_is_stm_12.jpg" },
+    { name: "K&F CONCEPT EF to EOS R Adapter", price: 45.04, image: "https://m.media-amazon.com/images/I/715NYVHKPsL._AC_SL1500_.jpg" },
+    { name: "Sigma AF 70-300mm f4-5.6 DG APO Macro", price: 115, image: "https://m.media-amazon.com/images/I/61detU7PZ7L._AC_SY879_.jpg" }
+  ];
 
   function renderRoadmap() {
+    const root = document.getElementById('roadmap-root');
     root.innerHTML = journeyData.map(item => `
       <div class="roadmap-item">
         <div class="roadmap-box">
           <span class="roadmap-date">${item.date}</span>
           <h3 class="roadmap-title">${item.title}</h3>
-          <div class="roadmap-details">
-            <p>${item.detail}</p>
-          </div>
+          <div class="roadmap-details"><p>${item.detail}</p></div>
         </div>
       </div>
     `).join('');
   }
 
-  document.addEventListener("DOMContentLoaded", renderRoadmap);
+  function renderKit() {
+    const kitRoot = document.getElementById('kit-root');
+    const totalRoot = document.getElementById('total-cost');
+    
+    let total = 0;
+
+    kitRoot.innerHTML = kitData.map(item => {
+      total += item.price;
+      return `
+        <div class="kit-card">
+          <img src="${item.image}" alt="${item.name}" class="kit-image">
+          <div class="kit-name">${item.name}</div>
+          <div class="kit-price">£${item.price.toLocaleString()}</div>
+        </div>
+      `;
+    }).join('');
+
+    totalRoot.innerText = `~£${total.toLocaleString()}`;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderRoadmap();
+    renderKit();
+  });
 </script>
