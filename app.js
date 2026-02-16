@@ -1,9 +1,10 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const fs = require('fs'); // Added for JSON reading
+const fs = require('fs');
 const bodyParser = require('body-parser');
 const getDB = require('./database/db'); 
+require('dotenv').config();
 
 // Route Imports
 const publicRoutes = require('./routes/public');

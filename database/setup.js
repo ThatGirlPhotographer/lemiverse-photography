@@ -1,3 +1,4 @@
+require('dotenv').config();
 const getDB = require('./db');
 const bcrypt = require('bcrypt');
 
@@ -51,7 +52,7 @@ async function setup() {
     `);
 
     try {
-        const hash = await bcrypt.hash('lemisphotos_lemi25!', 10);
+        const hash = await bcrypt.hash(process.env.PASS, 10);
         await db.run(`INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)`, ['lemi', hash]);
         
         await db.run(`INSERT OR IGNORE INTO categories (name) VALUES ('Portraits'), ('Outdoors'), ('Animals')`);
