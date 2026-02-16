@@ -33,3 +33,38 @@ exports.getDashboard = async (req, res) => {
 
     res.render('admin/dashboard', { title: 'Dashboard', bookings, stats });
 };
+
+exports.getResetPassword = (req, res) => {
+    res.render('admin/reset-password', { title: 'Reset Password', error: null, success: null });
+};
+
+exports.postResetPassword = async (req, res) => {
+    const { newPassword, confirmPassword } = req.body;
+    const user = req.session.user;
+
+    if (!newPassword || newPassword.length < 6) {
+        return res.render('admin/reset-password', { title: 'Reset Password', error: 'Password too short', success: null });
+    }
+
+    if (newPassword !== confirmPassword) {
+        return res.render('admin/reset-password', { title: 'Reset Password', error: 'Passwords do not match', success: null });
+    }
+
+    try {
+        const db = await getDB();
+        const hashedPass = await bcrypt.hash(newPassword, 10);
+        
+        await db.run('UPDATE users SET password_hash = ? WHERE id = ?', [hashedPass, user.id]);
+
+        req.session.user.password_hash = hashedPass;
+
+        res.render('admin/reset-password', { 
+            title: 'Reset Password', 
+            error: null, 
+            success: 'Password updated successfully!' 
+        });
+    } catch (err) {
+        console.error('Password Reset Error:', err);
+        res.render('admin/reset-password', { title: 'Reset Password', error: 'Server error. Try again.', success: null });
+    }
+};
