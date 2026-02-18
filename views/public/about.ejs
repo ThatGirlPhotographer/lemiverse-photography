@@ -70,12 +70,12 @@
     z-index: 1; cursor: crosshair; transition: all 0.3s ease-in-out;
   }
 
-  .roadmap-box:hover { background: #1a1a1a; }
+  .roadmap-box:hover, .roadmap-item.active .roadmap-box { background: #1a1a1a; }
 
   .roadmap-date { display: block; font-size: 0.7rem; letter-spacing: 3px; color: var(--gold); margin-bottom: 5px; text-transform: uppercase; }
   .roadmap-title { font-size: 1.1rem; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
   .roadmap-details { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
-  .roadmap-item:hover .roadmap-details { max-height: 150px; opacity: 1; padding-top: 15px; }
+  .roadmap-item:hover .roadmap-details, .roadmap-item.active .roadmap-details { max-height: 150px; opacity: 1; padding-top: 15px; }
   .roadmap-details p { color: #aaa; font-size: 0.85rem; line-height: 1.6; margin: 0; }
 
   /* --- KIT SECTION --- */
@@ -97,9 +97,10 @@
     padding: 20px;
     text-align: center;
     transition: border-color 0.3s ease;
+    cursor: pointer;
   }
 
-  .kit-card:hover {
+  .kit-card:hover, .kit-card:active {
     border-color: var(--gold);
   }
 
@@ -112,7 +113,7 @@
     transition: filter 0.3s ease;
   }
 
-  .kit-card:hover .kit-image {
+  .kit-card:hover .kit-image, .kit-card:active .kit-image {
     filter: grayscale(0%);
   }
 
@@ -206,7 +207,7 @@
   function renderRoadmap() {
     const root = document.getElementById('roadmap-root');
     root.innerHTML = journeyData.map(item => `
-      <div class="roadmap-item">
+      <div class="roadmap-item" onclick="this.classList.toggle('active')">
         <div class="roadmap-box">
           <span class="roadmap-date">${item.date}</span>
           <h3 class="roadmap-title">${item.title}</h3>
