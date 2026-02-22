@@ -31,6 +31,26 @@ app.use(session({
     saveUninitialized: false
 }));
 
+// --- CENTRALIZED ERROR MESSAGES ---
+const errorData = {
+    403: { 
+        title: 'PRIVATE COLLECTION', 
+        desc: 'This particular series is currently reserved for a private viewing.' 
+    },
+    500: { 
+        title: 'SOFT FOCUS', 
+        desc: 'The clarity shifted for a moment. We’re re-aligning the lens to find the sharpest light.' 
+    },
+    503: {
+        title: 'RECALIBRATING',
+        desc: 'The lens is currently being cleaned. This frame will return to focus shortly.'
+    },
+    default: { 
+        title: 'LOST EXPOSURE', 
+        desc: 'The light didn’t hit the sensor quite right. Let’s try another angle.' 
+    }
+};
+
 // 1. Settings & Session Middleware
 app.use(async (req, res, next) => {
     res.locals.user = req.session.user || null;
@@ -55,7 +75,7 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// 2. Maintenance Middleware (JSON Driven)
+// 2. Maintenance Middleware 
 app.use((req, res, next) => {
     if (path.extname(req.path) || req.path.startsWith('/admin')) return next();
     if (req.session.user) return next();
@@ -66,12 +86,25 @@ app.use((req, res, next) => {
             const maintenanceConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
             
             let page = req.path.split('/')[1] || 'home';
+            let pageConfig = maintenanceConfig[page];
+            let isMaintenance = pageConfig === true || (pageConfig && pageConfig.enabled === true);
 
-            if (maintenanceConfig[page] === true) {
-                return res.status(503).render('error', { 
-                    errorCode: '53',
-                    errorTitle: 'RECALIBRATING', 
-                    errorDesc: 'The lens is currently being cleaned. This frame will return to focus shortly.' 
+            if (isMaintenance) {
+                let statusCode = (typeof pageConfig === 'object' && pageConfig.code) ? pageConfig.code : 503;
+                
+                const defaultContent = errorData[statusCode] || errorData.default;
+                let errorTitle = defaultContent.title;
+                let errorDesc = defaultContent.desc;
+
+                if (typeof pageConfig === 'object') {
+                    errorTitle = pageConfig.title || errorTitle;
+                    errorDesc = pageConfig.desc || errorDesc;
+                }
+
+                return res.status(statusCode).render('error', { 
+                    errorCode: statusCode,
+                    errorTitle, 
+                    errorDesc 
                 });
             }
         }
@@ -103,25 +136,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     const statusCode = err.status || 500;
     
-    const errorData = {
-        403: { 
-            title: 'PRIVATE COLLECTION', 
-            desc: 'This particular series is currently reserved for a private viewing.' 
-        },
-        500: { 
-            title: 'SOFT FOCUS', 
-            desc: 'The clarity shifted for a moment. We’re re-aligning the lens to find the sharpest light.' 
-        },
-        503: {
-            title: 'RECALIBRATING',
-            desc: 'The lens is currently being cleaned. This frame will return to focus shortly.'
-        },
-        default: { 
-            title: 'LOST EXPOSURE', 
-            desc: 'The light didn’t hit the sensor quite right. Let’s try another angle.' 
-        }
-    };
-
+    // errorData is now pulled from the top of the file!
     const content = errorData[statusCode] || errorData.default;
     console.error(`[Error ${statusCode}]: ${err.message}`);
 

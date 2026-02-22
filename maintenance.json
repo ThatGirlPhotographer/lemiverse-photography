@@ -1,7 +1,27 @@
 {
-  "home": false,
-  "gallery": false,
-  "about": false,
-  "services": false,
-  "contact": false
+  "home": {
+    "enabled": true,
+    "title": "Temporarily Unavailable",
+    "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
+  },
+  "gallery": {
+    "enabled": true,
+    "title": "Temporarily Unavailable",
+    "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
+  },
+  "about": {
+    "enabled": true,
+    "title": "Temporarily Unavailable",
+    "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
+  },
+  "services": {
+    "enabled": true,
+    "title": "Temporarily Unavailable",
+    "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
+  },
+  "contact": {
+    "enabled": true,
+    "title": "Temporarily Unavailable",
+    "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
+  }
 }
