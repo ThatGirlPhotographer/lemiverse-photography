@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const getDB = require('./database/db'); 
+const { startHeartbeat } = require('./utils/uptime');
 require('dotenv').config();
 
 // Route Imports
@@ -15,6 +16,8 @@ const settingsRoutes = require('./routes/settings');
 const serviceRoutes = require('./routes/services');
 const categoryRoutes = require('./routes/categories');
 const mailRoutes = require('./routes/mail');
+
+startHeartbeat('https://status.lemiverse.win', '433f5a698d0e', 'b5f86da9520f44006c24bae6cc9b66f1');
 
 const app = express();
 
