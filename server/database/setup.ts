@@ -1,9 +1,11 @@
-require('dotenv').config();
-const getDB = require('./db');
-const bcrypt = require('bcrypt');
+import 'dotenv/config';
+import getDB from './db.js'
+import bcrypt from 'bcrypt'
 
-async function setup() {
+async function setup(): Promise<void> {
     const db = await getDB();
+
+    try {
 
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
@@ -30,7 +32,9 @@ async function setup() {
             service_id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             description TEXT,
-            price TEXT
+            price TEXT,
+            sale_price TEXT,
+            is_on_sale BOOLEAN DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS bookings (
@@ -38,11 +42,11 @@ async function setup() {
             name TEXT,
             email TEXT,
             message TEXT,
+            budget TEXT,
             status TEXT DEFAULT 'Pending',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
-        -- NEW: Table for Site Settings (Title, Social Links, etc.)
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT
@@ -51,27 +55,27 @@ async function setup() {
 
     `);
 
-    try {
-        const hash = await bcrypt.hash(process.env.PASS, 10);
+        const password = process.env.ADMIN_PASSWORD || 'admin_password';
+        const hash = await bcrypt.hash(password, 10);
+
         await db.run(`INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)`, ['lemi', hash]);
-        
-        await db.run(`INSERT OR IGNORE INTO categories (name) VALUES ('Portraits'), ('Outdoors'), ('Animals')`);
-        
-        await db.run(`INSERT OR IGNORE INTO services (title, description, price) VALUES 
-            ('Portrait Session', '1 Hour Studio', '£200')`);
+
+        await db.run(`INSERT OR IGNORE INTO categories (name) VALUES ('Portraits'), ('Outdoors'), ('Animals'), ('Video'), ('Weddings')`);
+
+        await db.run(`INSERT OR IGNORE INTO services (title, description, price, is_on_sale) VALUES ('Portrait Session', '1 Hour Studio Session', '£200', 0)`);
 
         await db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES 
             ('site_title', 'Lemiverse Photography'),
-            ('about_text', 'Professional photographer based in the UK.'),
+            ('about_text', 'Professional photographer and videographer based in the UK.'),
             ('instagram_link', 'https://instagram.com'),
-            ('facebook_link', 'https://facebook.com'),
-            ('contact_email', 'contact@lemiverse.win')
+            ('facebook_link', 'https://facebook.com')
         `);
-            
-        console.log('Database initialized successfully with SQLite!');
-    } catch (e) {
-        console.error('Error seeding data:', e);
-    }
+   
+
+        console.log('Database setup completed successfully.');
+}  catch (error) {
+        console.error('Error during database setup:', error);
+    } 
 }
 
 setup();
