@@ -2,78 +2,90 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
 <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700,300" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Lato:100,300,400" rel="stylesheet">
 
 <style>
-    .gallery-container { padding: 2rem; }
-    
+    /* --- MINIMAL BOX WRAPPER --- */
+    .gallery-container {
+        background-color: #000 !important;
+        color: #fff;
+        padding: 50px 0;
+        min-height: 80vh;
+        font-family: 'Lato', sans-serif;
+    }
+
+    .gallery-container header {
+        position: relative;
+        margin: 20px 0 10px 0;
+        font-size: 2.3em;
+        text-align: center;
+        letter-spacing: 7px;
+        color: #ffffff;
+        font-weight: 300;
+        text-transform: uppercase;
+    }
+
+    /* --- CATEGORY BUTTONS (Box Styling) --- */
+    .category-buttons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+    }
+
+    .category-buttons .btn {
+        box-sizing: border-box;
+        display: inline-block;
+        padding: 15px 25px;
+        border: solid 1px #ffffff !important;
+        margin-left: -1px; /* Merge border trick */
+        text-decoration: none;
+        color: white;
+        font-size: 0.875em;
+        letter-spacing: 2px;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out;
+        background: transparent;
+    }
+
+    .category-buttons .btn:hover {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    /* --- GALLERY GRID --- */
     .gallery-grid {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
 
     .gallery-item {
         position: relative;
-        height: 250px;
-        background: #1a1a1a;
-        border-radius: 8px;
+        height: 300px;
+        background: #000;
+        border: 1px solid #ffffff; /* Minimal Box Border */
+        margin-left: -1px;
+        margin-top: -1px;
         overflow: hidden;
-        content-visibility: auto;
-        contain-intrinsic-size: 250px;
-    }
-
-    .skeleton {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite linear;
-        z-index: 1;
-    }
-
-    @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
     }
 
     .gallery-img, .gallery-video-preview {
-        width: 100%; height: 100%;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         cursor: pointer;
-        transition: transform 0.3s ease, opacity 0.4s ease-in-out;
+        transition: transform 0.5s ease, opacity 0.4s ease-in-out;
         opacity: 0;
-        position: relative;
-        z-index: 2;
-        border-radius: 8px;
+        display: block;
     }
 
     .loaded { opacity: 1 !important; }
-    .gallery-item:hover .loaded { transform: scale(1.05); }
+    .gallery-item:hover img, .gallery-item:hover video { transform: scale(1.05); }
 
-    .video-badge {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 3;
-        background: rgba(0, 0, 0, 0.4);
-        width: 60px; height: 60px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-        pointer-events: none;
-    }
-
-    .video-badge svg { fill: white; width: 30px; height: 30px; margin-left: 4px; }
-
-    .category-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 2rem; }
-    .category-buttons .btn {
-        display: inline-block; padding: 8px 16px; border: 1px solid white;
-        text-decoration: none; color: white;
-    }
-    .category-buttons .btn:hover { background-color: white; color: #050505 !important; }
-
-    /* ISOLATED VIDEO MODAL */
+    /* --- VIDEO MODAL --- */
     #videoModal {
         display: none;
         position: fixed;
@@ -81,60 +93,78 @@
         width: 100%; height: 100%;
         background: rgba(0,0,0,0.95);
         z-index: 2000;
-        justify-content: center; align-items: center;
+        justify-content: center;
+        align-items: center;
     }
-    #videoModal video { max-width: 90%; max-height: 80vh; outline: none; }
+    #videoModal video { max-width: 90%; max-height: 80vh; border: 1px solid #fff; }
     .close-video {
         position: absolute;
         top: 20px; right: 30px;
         color: white; font-size: 40px;
-        cursor: pointer; line-height: 1;
+        cursor: pointer;
+    }
+
+    .skeleton {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: #111;
+        z-index: 1;
     }
 
     @media (max-width: 600px) {
-        .gallery-container { padding: 1rem; }
-        .category-buttons { justify-content: center; }
+        .gallery-grid { grid-template-columns: 1fr; }
     }
 </style>
 
 <% 
-    // ADD YOUR VIDEO CAT IDs HERE
+    // Configuration
     const videoCatIds = [14]; 
-    const isVideoMode = videoCatIds.includes(Number(selectedCat));
+    const clientVideoMode = videoCatIds.includes(Number(selectedCat));
+    
+    // Filtering logic: If on "All" (no selectedCat), exclude videos
+    const filteredImages = images.filter(img => {
+        if (!selectedCat || selectedCat === '') {
+            return img.media_type !== 'video';
+        }
+        return true;
+    });
 %>
 
 <div class="gallery-container">
-    <h2><%= isVideoMode ? 'Video Gallery' : 'Photo Gallery' %></h2>
-    
+    <header><%= clientVideoMode ? 'Motion' : 'Gallery' %></header>
+
     <div class="category-buttons">
-        <a href="/gallery" class="btn">All</a>
-        <% categories.forEach(cat => { %>
-            <a href="/gallery?cat=<%= cat.category_id %>" class="btn"><%= cat.name %></a>
+        <a href="/gallery" class="btn" style="border-top-left-radius: 5px; border-bottom-left-radius: 5px;">ALL</a>
+        <% categories.forEach((cat, index) => { %>
+            <a href="/gallery?cat=<%= cat.category_id %>" class="btn"><%= cat.name.toUpperCase() %></a>
         <% }) %>
     </div>
 
     <div class="gallery-grid">
-        <% images.forEach(img => { %>
-            <div class="gallery-item">
-                <div class="skeleton"></div>
-                
-                <% if (isVideoMode || img.media_type === 'video') { %>
-                    <div class="video-badge">
-                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    </div>
-                    <a href="javascript:void(0)" onclick="openVideo('/gallery/<%= img.filename %>')">
-                        <video class="gallery-video-preview" preload="metadata" muted playsinline
-                               onloadeddata="this.classList.add('loaded'); this.parentElement.parentElement.querySelector('.skeleton')?.remove();">
-                            <source src="/gallery/<%= img.filename %>#t=0.1" type="video/mp4">
-                        </video>
-                    </a>
-                <% } else { %>
-                    <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="img-gallery">
-                        <img class="gallery-img" data-src="/gallery/thumb_<%= img.filename %>" alt="<%= img.caption %>">
-                    </a>
-                <% } %>
+        <% if (filteredImages.length === 0) { %>
+            <div style="grid-column: 1 / -1; text-align: center; padding: 50px; border: 1px solid #fff;">
+                <p style="letter-spacing: 2px;">COMING SOON</p>
             </div>
-        <% }) %>
+        <% } else { %>
+            <% filteredImages.forEach(img => { %>
+                <div class="gallery-item">
+                    <div class="skeleton"></div>
+                    
+                    <% if (clientVideoMode || img.media_type === 'video') { %>
+                        <a href="javascript:void(0)" onclick="openVideo('/gallery/<%= img.filename %>')">
+                            <video class="gallery-video-preview" preload="metadata" muted playsinline
+                                   onloadeddata="this.classList.add('loaded'); this.parentElement.parentElement.querySelector('.skeleton')?.remove();">
+                                <source src="/gallery/<%= img.filename %>#t=0.1" type="video/mp4">
+                            </video>
+                        </a>
+                    <% } else { %>
+                        <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="main">
+                            <img class="gallery-img" data-src="/gallery/thumb_<%= img.filename %>" alt="<%= img.caption %>">
+                        </a>
+                    <% } %>
+                </div>
+            <% }) %>
+        <% } %>
     </div>
 </div>
 
@@ -145,10 +175,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script type="text/javascript">
-    // We wrap the EJS value in quotes so JS sees it as a string first to avoid syntax errors
-    const clientVideoMode = "<%= isVideoMode %>" === "true";
+    const isVideoView = "<%= clientVideoMode %>" === "true";
 
-    if (clientVideoMode) {
+    if (isVideoView) {
         const vModal = document.getElementById('videoModal');
         const vPlayer = document.getElementById('modalPlayer');
 
@@ -165,38 +194,25 @@
             vPlayer.src = "";
             document.body.style.overflow = 'auto';
         };
-
-        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVideo(); });
-
     } else {
-        const lightbox = GLightbox({
-            selector: '.glightbox',
-            touchNavigation: true,
-            loop: true
-        });
+        const lightbox = GLightbox({ selector: '.glightbox', loop: true });
 
         document.addEventListener("DOMContentLoaded", () => {
-            const imageElements = document.querySelectorAll('.gallery-img');
-            const observer = new IntersectionObserver((entries, obs) => {
+            const images = document.querySelectorAll('.gallery-img');
+            const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        if(img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.onload = () => {
-                                img.classList.add('loaded');
-                                const container = img.closest('.gallery-item');
-                                if(container) {
-                                    const skel = container.querySelector('.skeleton');
-                                    if(skel) skel.remove();
-                                }
-                            };
-                        }
-                        obs.unobserve(img);
+                        img.src = img.dataset.src;
+                        img.onload = () => {
+                            img.classList.add('loaded');
+                            img.closest('.gallery-item').querySelector('.skeleton')?.remove();
+                        };
+                        observer.unobserve(img);
                     }
                 });
-            }, { rootMargin: '200px 0px', threshold: 0.01 });
-            imageElements.forEach(img => observer.observe(img));
+            }, { rootMargin: '200px' });
+            images.forEach(img => observer.observe(img));
         });
     }
 </script>
