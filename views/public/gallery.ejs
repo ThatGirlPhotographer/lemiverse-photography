@@ -39,8 +39,8 @@
         100% { background-position: -200% 0; }
     }
 
-    /* Support for both IMG and VIDEO elements in the grid */
-    .gallery-img, .gallery-video-thumb {
+    /* Target both img and video tags for the grid display */
+    .gallery-img, .gallery-video-preview {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -98,6 +98,7 @@
     .category-buttons .btn:hover {
         background-color: white;
         color: #050505 !important; 
+        border-color: white;
     }
 
     @media (max-width: 600px) {
@@ -130,24 +131,31 @@
                         <div class="video-badge">
                             <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </div>
-                    <% } %>
 
-                    <a href="/gallery/<%= img.filename %>" 
-                       class="glightbox" 
-                       data-gallery="gallery1" 
-                       data-type="<%= img.media_type === 'video' ? 'video' : 'image' %>">
-                        
-                        <% if (img.media_type === 'video') { %>
-                            <img class="gallery-img" 
-                                 data-src="/gallery/poster_<%= img.filename.split('.')[0] %>.jpg" 
-                                 alt="<%= img.caption %>"
-                                 onerror="showVideoFallback(this, '/gallery/<%= img.filename %>')">
-                        <% } else { %>
+                        <a href="/gallery/<%= img.filename %>" 
+                           class="glightbox" 
+                           data-gallery="gallery1" 
+                           data-type="video">
+                            
+                            <video class="gallery-video-preview" 
+                                   preload="metadata" 
+                                   muted 
+                                   playsinline
+                                   onloadeddata="this.classList.add('loaded'); this.parentElement.parentElement.querySelector('.skeleton')?.remove();">
+                                <source src="/gallery/<%= img.filename %>#t=0.1" type="video/mp4">
+                            </video>
+                        </a>
+                    <% } else { %>
+                        <a href="/gallery/<%= img.filename %>" 
+                           class="glightbox" 
+                           data-gallery="gallery1" 
+                           data-type="image">
+                            
                             <img class="gallery-img" 
                                  data-src="/gallery/thumb_<%= img.filename %>" 
                                  alt="<%= img.caption %>">
-                        <% } %>
-                    </a>
+                        </a>
+                    <% } %>
                 </div>
             <% }) %>
         <% } %>
@@ -156,32 +164,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script type="text/javascript">
-    // 1. Fallback for videos without generated posters
-    function showVideoFallback(imgElement, videoSrc) {
-        const container = imgElement.parentElement;
-        const video = document.createElement('video');
-        video.className = 'gallery-video-thumb loaded';
-        video.muted = true;
-        video.playsInline = true;
-        video.innerHTML = `<source src="${videoSrc}#t=0.1" type="video/mp4">`;
-        
-        // Remove the broken img and skeleton
-        const skeleton = container.closest('.gallery-item').querySelector('.skeleton');
-        if(skeleton) skeleton.remove();
-        imgElement.remove();
-        
-        container.appendChild(video);
-    }
-
     const lightbox = GLightbox({
         selector: '.glightbox',
         touchNavigation: true,
         loop: true,
         autoplayVideos: true,
+        videosWidth: '1024px',
     });
 
     document.addEventListener("DOMContentLoaded", () => {
-        const items = document.querySelectorAll('.gallery-img');
+        // Only observe images (videos use onloadeddata event above)
+        const imageElements = document.querySelectorAll('.gallery-img');
         
         const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => {
@@ -190,7 +183,7 @@
                     const container = img.closest('.gallery-item');
                     const skeleton = container.querySelector('.skeleton');
                     
-                    if (img.dataset.src) {
+                    if(img.dataset.src) {
                         img.src = img.dataset.src;
                         img.onload = () => {
                             img.classList.add('loaded');
@@ -202,7 +195,7 @@
             });
         }, { rootMargin: '200px 0px', threshold: 0.01 });
 
-        items.forEach(img => observer.observe(img));
+        imageElements.forEach(img => observer.observe(img));
     });
 </script>
 
