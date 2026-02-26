@@ -39,7 +39,8 @@
         100% { background-position: -200% 0; }
     }
 
-    .gallery-img {
+    /* Support for both IMG and VIDEO elements in the grid */
+    .gallery-img, .gallery-video-thumb {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -51,11 +52,10 @@
         border-radius: 8px;
     }
 
-    .gallery-img.loaded { opacity: 1; }
+    .loaded { opacity: 1 !important; }
 
-    .gallery-item:hover .gallery-img.loaded { transform: scale(1.05); }
+    .gallery-item:hover .loaded { transform: scale(1.05); }
 
-    /* VIDEO INDICATOR OVERLAY */
     .video-badge {
         position: absolute;
         top: 50%;
@@ -71,18 +71,13 @@
         justify-content: center;
         border: 2px solid rgba(255, 255, 255, 0.8);
         pointer-events: none;
-        transition: background 0.3s ease;
-    }
-
-    .gallery-item:hover .video-badge {
-        background: rgba(0, 0, 0, 0.7);
     }
 
     .video-badge svg {
         fill: white;
         width: 30px;
         height: 30px;
-        margin-left: 4px; /* Optical centering for play triangle */
+        margin-left: 4px;
     }
 
     .category-buttons {
@@ -103,7 +98,6 @@
     .category-buttons .btn:hover {
         background-color: white;
         color: #050505 !important; 
-        border-color: white;
     }
 
     @media (max-width: 600px) {
@@ -126,7 +120,6 @@
         <% if (images && images.length === 0) { %>
             <div style="grid-column: 1 / -1; text-align: center; padding-top: 50px;">
                 <h1 style="color: white; font-family: 'Yanone Kaffeesatz';">Check Back Soon</h1>
-                <p style="color: rgba(255,255,255,0.7);">Fresh content is currently in the lab.</p>
             </div>
         <% } else { %>
             <% images.forEach(img => { %>
@@ -144,10 +137,16 @@
                        data-gallery="gallery1" 
                        data-type="<%= img.media_type === 'video' ? 'video' : 'image' %>">
                         
-                        <img class="gallery-img" 
-                             data-src="/gallery/<%= img.media_type === 'video' ? 'poster_' + img.filename.split('.')[0] + '.jpg' : 'thumb_' + img.filename %>" 
-                             alt="<%= img.caption %>"
-                             onerror="this.onerror=null; this.src='/gallery/<%= img.filename %>';">
+                        <% if (img.media_type === 'video') { %>
+                            <img class="gallery-img" 
+                                 data-src="/gallery/poster_<%= img.filename.split('.')[0] %>.jpg" 
+                                 alt="<%= img.caption %>"
+                                 onerror="showVideoFallback(this, '/gallery/<%= img.filename %>')">
+                        <% } else { %>
+                            <img class="gallery-img" 
+                                 data-src="/gallery/thumb_<%= img.filename %>" 
+                                 alt="<%= img.caption %>">
+                        <% } %>
                     </a>
                 </div>
             <% }) %>
@@ -157,16 +156,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script type="text/javascript">
-    // 1. Initialize Lightbox with Video Support
+    // 1. Fallback for videos without generated posters
+    function showVideoFallback(imgElement, videoSrc) {
+        const container = imgElement.parentElement;
+        const video = document.createElement('video');
+        video.className = 'gallery-video-thumb loaded';
+        video.muted = true;
+        video.playsInline = true;
+        video.innerHTML = `<source src="${videoSrc}#t=0.1" type="video/mp4">`;
+        
+        // Remove the broken img and skeleton
+        const skeleton = container.closest('.gallery-item').querySelector('.skeleton');
+        if(skeleton) skeleton.remove();
+        imgElement.remove();
+        
+        container.appendChild(video);
+    }
+
     const lightbox = GLightbox({
         selector: '.glightbox',
         touchNavigation: true,
         loop: true,
         autoplayVideos: true,
-        videosWidth: '1024px', // Standard theater width
     });
 
-    // 2. Intersection Observer for Lazy Loading
     document.addEventListener("DOMContentLoaded", () => {
         const items = document.querySelectorAll('.gallery-img');
         
@@ -177,13 +190,13 @@
                     const container = img.closest('.gallery-item');
                     const skeleton = container.querySelector('.skeleton');
                     
-                    img.src = img.dataset.src;
-                    
-                    img.onload = () => {
-                        img.classList.add('loaded');
-                        setTimeout(() => { if(skeleton) skeleton.remove(); }, 400); 
-                    };
-
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.onload = () => {
+                            img.classList.add('loaded');
+                            setTimeout(() => { if(skeleton) skeleton.remove(); }, 400); 
+                        };
+                    }
                     obs.unobserve(img);
                 }
             });

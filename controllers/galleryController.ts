@@ -1,17 +1,16 @@
 import type { Request, Response } from 'express';
-import getDB from '../database/db.js'
-import fs from 'fs'
-import path from 'path'
-import sharp from 'sharp'
-import { fileURLToPath } from 'url'
+import getDB from '../database/db.js';
+import fs from 'fs';
+import path from 'path';
+import sharp from 'sharp';
+import ffmpeg from 'fluent-ffmpeg'; // Added FFmpeg
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Path to your gallery folder
 const galleryDir = path.join(__dirname, '..', 'public', 'gallery');
 
-// Ensure the gallery directory exists
 if (!fs.existsSync(galleryDir)) {
     fs.mkdirSync(galleryDir, { recursive: true });
 }
@@ -43,13 +42,12 @@ export const postUpload = async (req: Request, res: Response): Promise<void> => 
     const { caption, category_id } = req.body;
 
     try {
-        // Process all images in parallel
         await Promise.all(files.map(async (file) => {
             const baseName = Date.now() + '-' + Math.round(Math.random() * 1E9);
             const isVideo = file.mimetype.startsWith('video/');
             const mediaType = isVideo ? 'video' : 'image';
 
-            const finalFilename = isVideo ? `${baseName}${path.extname(file.originalname)}`: `${baseName}.webp`;
+            const finalFilename = isVideo ? `${baseName}${path.extname(file.originalname)}` : `${baseName}.webp`;
             const originalPath = file.path;
 
             try {
@@ -66,16 +64,34 @@ export const postUpload = async (req: Request, res: Response): Promise<void> => 
                         .webp({ quality: 60 })
                         .toFile(path.join(galleryDir, `thumb_${finalFilename}`));
                 } else {
-                    // 3. Process VIDEO (v6: direct move to gallery folder)
-                    fs.renameSync(originalPath, path.join(galleryDir, finalFilename));
+                    // 3. Process VIDEO
+                    const posterFilename = `poster_${baseName}.jpg`;
+                    const destinationPath = path.join(galleryDir, finalFilename);
+                    
+                    // Move original video file
+                    fs.renameSync(originalPath, destinationPath);
+
+                    // Generate Thumbnail (Poster) from video using FFmpeg
+                    await new Promise((resolve, reject) => {
+                        ffmpeg(destinationPath)
+                            .screenshots({
+                                timestamps: ['00:00:01'], // Capture frame at 1 second
+                                filename: posterFilename,
+                                folder: galleryDir,
+                                size: '400x400'
+                            })
+                            .on('end', resolve)
+                            .on('error', reject);
+                    });
                 }
 
-                // 4. Save to Database with media_type
+                // 4. Save to Database
                 await db.run(
                     'INSERT INTO gallery_items (filename, caption, category_id, media_type) VALUES (?, ?, ?, ?)', 
                     [finalFilename, caption, category_id, mediaType]
                 );
             } finally {
+                // Only unlink if it's an image (videos were moved via renameSync)
                 if (!isVideo && fs.existsSync(originalPath)) {
                     fs.unlinkSync(originalPath);
                 }
@@ -105,17 +121,23 @@ export const deleteImage = async (req: Request, res: Response): Promise<void> =>
     const db = await getDB();
 
     try {
-        const image = await db.get<GalleryItem>('SELECT filename, media_type FROM gallery_items WHERE item_id = ?', [itemId]);
+        const item = await db.get<GalleryItem>('SELECT filename, media_type FROM gallery_items WHERE item_id = ?', [itemId]);
         
-        if (image) {
-            const mainFilePath = path.join(galleryDir, image.filename);
-            const thumbFilePath = path.join(galleryDir, `thumb_${image.filename}`);
-
+        if (item) {
+            const mainFilePath = path.join(galleryDir, item.filename);
+            
+            // Delete the main file (image or video)
             if (fs.existsSync(mainFilePath)) fs.unlinkSync(mainFilePath);
             
-            // Only attempt to delete thumb if it was an image
-            if (image.media_type === 'image' && fs.existsSync(thumbFilePath)) {
-                fs.unlinkSync(thumbFilePath);
+            // Delete associated thumbnail/poster
+            if (item.media_type === 'image') {
+                const thumbPath = path.join(galleryDir, `thumb_${item.filename}`);
+                if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath);
+            } else {
+                // If video, look for the 'poster_' file
+                const baseName = item.filename.split('.')[0];
+                const posterPath = path.join(galleryDir, `poster_${baseName}.jpg`);
+                if (fs.existsSync(posterPath)) fs.unlinkSync(posterPath);
             }
 
             await db.run('DELETE FROM gallery_items WHERE item_id = ?', [itemId]);
