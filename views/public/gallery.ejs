@@ -105,21 +105,25 @@
         z-index: 999999 !important;
     }
     
-    /* Force the active slide to the top so video UI doesn't leak */
     .gslide.current {
-        z-index: 10 !important;
+        z-index: 99 !important; /* Higher than non-active slides */
+        background-color: #000; /* Solid wall to block items behind */
     }
 
-    /* Ensure images have a solid background in the player */
     .gslide-image {
         background-color: #000;
     }
 
-    /* Fix for hardware acceleration glitches on video UI */
-    .gslide-video {
+    .gslide-video, .gvideo-container {
         backface-visibility: hidden;
         transform: translateZ(0);
-        background: #000;
+        background: #000 !important;
+    }
+
+    /* Globally hide video elements when the slide isn't a video type */
+    .gslide:not(.gslide-video) .gvideo-container {
+        display: none !important;
+        visibility: hidden !important;
     }
 
     @media (max-width: 600px) {
@@ -193,19 +197,33 @@
         videosWidth: '1024px',
     });
 
-    // BUG FIX: Reset video opacity and pause non-active videos to prevent UI bleeding
+    // BUG FIX: Manual Stacking Context Reset
     lightbox.on('slide_before_change', ({ prev, current }) => {
         const video = prev.instance.querySelector('video');
         if (video) {
             video.pause();
-            video.style.opacity = '0'; // Hide video layer immediately
+            // Force invisible during transition to an image
+            video.style.opacity = '0';
+            video.style.visibility = 'hidden';
         }
     });
 
     lightbox.on('slide_after_change', ({ prev, current }) => {
-        const video = current.instance.querySelector('video');
-        if (video) {
-            video.style.opacity = '1'; // Show active video layer
+        const type = current.type;
+        const container = current.instance;
+
+        if (type === 'video') {
+            const video = container.querySelector('video');
+            if (video) {
+                video.style.opacity = '1';
+                video.style.visibility = 'visible';
+            }
+        } else {
+            // If current is an image, push the shared video player behind everything
+            const globalPlayer = document.querySelector('.gvideo-container');
+            if (globalPlayer) {
+                globalPlayer.style.zIndex = '-1';
+            }
         }
     });
 
