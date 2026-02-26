@@ -54,6 +54,7 @@
     .loaded { opacity: 1 !important; }
     .gallery-item:hover .loaded { transform: scale(1.05); }
 
+    /* VIDEO INDICATOR OVERLAY */
     .video-badge {
         position: absolute;
         top: 50%;
@@ -72,41 +73,59 @@
     }
 
     .video-badge svg {
-        fill: white; width: 30px; height: 30px; margin-left: 4px;
+        fill: white;
+        width: 30px;
+        height: 30px;
+        margin-left: 4px;
     }
 
-    /* --- STACKING CONTEXT FIXES --- */
-    
-    .glightbox-container {
-        z-index: 999999 !important;
+    .category-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 2rem;
     }
 
-    /* 1. The Slide (Current) */
-    .gslide.current {
-        z-index: 10 !important; 
-        background-color: #000;
-    }
-
-    /* 2. The Navigation Buttons (Must be higher than .gslide.current) */
-    .gbtn-next, .gbtn-prev, .gclose, .gnext, .gprev {
-        z-index: 100 !important; 
-        opacity: 1 !important;
-    }
-
-    /* 3. Video containers */
-    .gslide-video, .gvideo-container {
-        backface-visibility: hidden;
-        transform: translateZ(0);
-        background: #000 !important;
-    }
-
-    /* 4. Category buttons */
-    .category-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 2rem; }
     .category-buttons .btn {
-        display: inline-block; padding: 8px 16px; border: 1px solid white;
-        text-decoration: none; color: white;
+        display: inline-block;
+        padding: 8px 16px;
+        border: 1px solid white;
+        text-decoration: none;
+        color: white;
     }
-    .category-buttons .btn:hover { background-color: white; color: #050505 !important; }
+
+    .category-buttons .btn:hover {
+        background-color: white;
+        color: #050505 !important; 
+        border-color: white;
+    }
+
+    /* CUSTOM ISOLATED VIDEO MODAL */
+    #videoModal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #videoModal video {
+        max-width: 90%;
+        max-height: 80vh;
+        outline: none;
+    }
+
+    .close-video {
+        position: absolute;
+        top: 20px; right: 30px;
+        color: white; font-size: 40px;
+        cursor: pointer;
+        font-family: 'Lato', sans-serif;
+        line-height: 1;
+    }
 
     @media (max-width: 600px) {
         .gallery-container { padding: 1rem; }
@@ -116,6 +135,7 @@
 
 <div class="gallery-container">
     <h2>Gallery</h2>
+    
     <div class="category-buttons">
         <a href="/gallery" class="btn">All</a>
         <% categories.forEach(cat => { %>
@@ -132,19 +152,27 @@
             <% images.forEach(img => { %>
                 <div class="gallery-item">
                     <div class="skeleton"></div>
+                    
                     <% if (img.media_type === 'video') { %>
                         <div class="video-badge">
                             <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </div>
-                        <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="gallery1" data-type="video">
-                            <video class="gallery-video-preview" preload="metadata" muted playsinline
+                        <a href="javascript:void(0)" onclick="openVideo('/gallery/<%= img.filename %>')">
+                            <video class="gallery-video-preview" 
+                                   preload="metadata" 
+                                   muted 
+                                   playsinline
                                    onloadeddata="this.classList.add('loaded'); this.parentElement.parentElement.querySelector('.skeleton')?.remove();">
                                 <source src="/gallery/<%= img.filename %>#t=0.1" type="video/mp4">
                             </video>
                         </a>
                     <% } else { %>
-                        <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="gallery1" data-type="image">
-                            <img class="gallery-img" data-src="/gallery/thumb_<%= img.filename %>" alt="<%= img.caption %>">
+                        <a href="/gallery/<%= img.filename %>" 
+                           class="glightbox" 
+                           data-gallery="img-gallery">
+                            <img class="gallery-img" 
+                                 data-src="/gallery/thumb_<%= img.filename %>" 
+                                 alt="<%= img.caption %>">
                         </a>
                     <% } %>
                 </div>
@@ -153,48 +181,56 @@
     </div>
 </div>
 
+<div id="videoModal">
+    <span class="close-video" onclick="closeVideo()">&times;</span>
+    <video id="modalPlayer" controls playsinline>
+        <source src="" type="video/mp4">
+    </video>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script type="text/javascript">
+    // 1. Initialize Photo Gallery (Excludes Videos)
     const lightbox = GLightbox({
         selector: '.glightbox',
         touchNavigation: true,
-        loop: true,
-        autoplayVideos: true,
-        videosWidth: '1024px',
+        loop: true
     });
 
-    // BUG FIX: Ensure video layer doesn't ghost through images
-    lightbox.on('slide_before_change', ({ prev, current }) => {
-        const video = prev.instance.querySelector('video');
-        if (video) {
-            video.pause();
-            video.style.opacity = '0';
-            video.style.visibility = 'hidden';
-        }
+    // 2. Custom Video Modal Logic
+    const vModal = document.getElementById('videoModal');
+    const vPlayer = document.getElementById('modalPlayer');
+
+    function openVideo(src) {
+        vPlayer.src = src;
+        vModal.style.display = 'flex';
+        vPlayer.play();
+        document.body.style.overflow = 'hidden'; // Stop background scroll
+    }
+
+    function closeVideo() {
+        vModal.style.display = 'none';
+        vPlayer.pause();
+        vPlayer.src = ""; // Kill the stream to prevent ghosting
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close on ESC key
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeVideo();
     });
 
-    lightbox.on('slide_after_change', ({ prev, current }) => {
-        if (current.type === 'video') {
-            const video = current.instance.querySelector('video');
-            if (video) {
-                video.style.opacity = '1';
-                video.style.visibility = 'visible';
-            }
-        } else {
-            // Push the global video player container behind the image slide
-            const globalPlayer = document.querySelector('.gvideo-container');
-            if (globalPlayer) { globalPlayer.style.zIndex = '-1'; }
-        }
-    });
-
+    // 3. Intersection Observer for Lazy Loading Images
     document.addEventListener("DOMContentLoaded", () => {
         const imageElements = document.querySelectorAll('.gallery-img');
+        
         const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     const container = img.closest('.gallery-item');
                     const skeleton = container.querySelector('.skeleton');
+                    
                     if(img.dataset.src) {
                         img.src = img.dataset.src;
                         img.onload = () => {
@@ -206,6 +242,7 @@
                 }
             });
         }, { rootMargin: '200px 0px', threshold: 0.01 });
+
         imageElements.forEach(img => observer.observe(img));
     });
 </script>
