@@ -45,18 +45,17 @@
     margin: 0 auto 50px auto;
   }
 
-  /* --- INPUTS, TEXTAREA & TURNSTILE SHARED --- */
+  /* --- SHARED INPUT STYLING --- */
   .minimal-box-form input, 
   .minimal-box-form textarea,
   .minimal-box-form .turnstile-wrapper,
-  .minimal-box-form #submit,
-  .minimal-box-form .budget-wrapper {
+  .minimal-box-form #submit {
       box-sizing: border-box;
       width: 100%; 
       display: block;
       border-radius: 0;
       margin: 0;
-      margin-bottom: -1px; /* The "Merge Border" trick */
+      margin-bottom: -1px; /* Merge Border trick */
       border: solid 1px #ffffff !important;
   }
 
@@ -67,20 +66,21 @@
     background: transparent !important;
     outline: none;
     color: #ffffff !important;
-    transition: all 0.3s ease-in-out;
+    transition: background 0.3s ease-in-out;
     padding: 15px; 
     position: relative;
   }
 
   .minimal-box-form input { height: 50px; }
 
-  /* --- BUDGET SPECIFIC --- */
-  .minimal-box-form .budget-wrapper {
+  /* --- BUDGET SPECIFIC FIX --- */
+  .budget-container {
     position: relative;
-    border: none !important; /* Removes outer border to rely on child input border */
+    width: 100%;
+    margin-bottom: -1px; /* Keeps the merge border look */
   }
 
-  .minimal-box-form .budget-wrapper::before {
+  .budget-container::before {
     content: "£";
     position: absolute;
     left: 15px;
@@ -88,12 +88,15 @@
     transform: translateY(-50%);
     color: #ffffff;
     font-size: 0.875em;
-    z-index: 5;
+    /* This ensures it stays above the input background even on hover */
+    z-index: 20; 
     pointer-events: none;
   }
 
   .minimal-box-form #budget {
     padding-left: 30px !important;
+    /* We reset the border here because the container isn't an input */
+    border: solid 1px #ffffff !important; 
     width: 100%;
   }
 
@@ -122,18 +125,11 @@
     background: transparent;
   }
 
-  /* --- CUSTOM SCROLLBAR --- */
-  .minimal-box-form textarea::-webkit-scrollbar { width: 8px; }
-  .minimal-box-form textarea::-webkit-scrollbar-track { background: #000; border-left: 1px solid #333; }
-  .minimal-box-form textarea::-webkit-scrollbar-thumb { background-color: #333; border: 1px solid #000; }
-  .minimal-box-form textarea::-webkit-scrollbar-thumb:hover { background-color: #fff; }
-  .minimal-box-form textarea { scrollbar-width: thin; scrollbar-color: #333 #000; }
-
   /* --- HOVER EFFECTS --- */
   .minimal-box-form input:hover, 
-  .minimal-box-form textarea:hover {
+  .minimal-box-form textarea:hover,
+  .minimal-box-form input:focus {
     background: #1a1a1a !important;
-    z-index: 10;
   }
 
   /* --- BUTTON STYLING --- */
@@ -156,7 +152,6 @@
   .minimal-box-form #submit:hover {
     background: #ffffff !important;
     color: #000000 !important;
-    z-index: 10;
   }
 
   .minimal-box-form ::placeholder { color: #888; opacity: 1; }
@@ -195,19 +190,13 @@
     </div>
   <% } %>
 
-  <% if (typeof error !== 'undefined' && error) { %> 
-    <div style="width: 90%; max-width: 500px; margin: 0 auto 20px auto; text-align: center; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 10px; box-sizing: border-box;">
-        <%= error %>
-    </div>
-  <% } %>
-
   <form id="form" action="/contact" method="POST">
       
       <input id="name" name="name" type="text" placeholder="NAME" style="border-top-left-radius: 5px; border-top-right-radius: 5px;" required>
       
       <input id="email" name="email" type="text" placeholder="E-MAIL" required>
 
-      <div class="budget-wrapper">
+      <div class="budget-container">
         <input id="budget" name="budget" type="number" step="1" placeholder="BUDGET" required>
       </div>
       
