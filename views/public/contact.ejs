@@ -49,7 +49,8 @@
   .minimal-box-form input, 
   .minimal-box-form textarea,
   .minimal-box-form .turnstile-wrapper,
-  .minimal-box-form #submit {
+  .minimal-box-form #submit,
+  .minimal-box-form .budget-wrapper {
       box-sizing: border-box;
       width: 100%; 
       display: block;
@@ -72,6 +73,39 @@
   }
 
   .minimal-box-form input { height: 50px; }
+
+  /* --- BUDGET SPECIFIC --- */
+  .minimal-box-form .budget-wrapper {
+    position: relative;
+    border: none !important; /* Removes outer border to rely on child input border */
+  }
+
+  .minimal-box-form .budget-wrapper::before {
+    content: "£";
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ffffff;
+    font-size: 0.875em;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .minimal-box-form #budget {
+    padding-left: 30px !important;
+    width: 100%;
+  }
+
+  /* Hide number arrows */
+  .minimal-box-form #budget::-webkit-outer-spin-button,
+  .minimal-box-form #budget::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .minimal-box-form #budget[type=number] {
+    -moz-appearance: textfield;
+  }
 
   .minimal-box-form textarea {
     height: 110px;
@@ -116,7 +150,7 @@
     transition: all 0.3s ease-in-out;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    margin-bottom: 0; /* Reset margin for last element */
+    margin-bottom: 0; 
   }
 
   .minimal-box-form #submit:hover {
@@ -172,6 +206,10 @@
       <input id="name" name="name" type="text" placeholder="NAME" style="border-top-left-radius: 5px; border-top-right-radius: 5px;" required>
       
       <input id="email" name="email" type="text" placeholder="E-MAIL" required>
+
+      <div class="budget-wrapper">
+        <input id="budget" name="budget" type="number" step="1" placeholder="BUDGET" required>
+      </div>
       
       <textarea id="message" name="message" placeholder="MESSAGE" required></textarea>
 
