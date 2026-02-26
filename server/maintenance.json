@@ -1,26 +1,26 @@
 {
   "home": {
-    "enabled": true,
+    "enabled": false,
     "title": "Temporarily Unavailable",
     "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
   },
   "gallery": {
-    "enabled": true,
+    "enabled": false,
     "title": "Temporarily Unavailable",
     "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
   },
   "about": {
-    "enabled": true,
+    "enabled": false,
     "title": "Temporarily Unavailable",
     "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
   },
   "services": {
-    "enabled": true,
+    "enabled": false,
     "title": "Temporarily Unavailable",
     "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
   },
   "contact": {
-    "enabled": true,
+    "enabled": false,
     "title": "Temporarily Unavailable",
     "desc": "Uh oh, looks like we are temporarily unavailable please check back soon!"
   }

@@ -21,15 +21,15 @@
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
-    "@types/node": "^22.10.0",
     "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.0",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "db:init": "ts-node database/setup.ts && ts-node database/migrate_sales.ts && echo \"--- Database Init & Migration Complete ---\"",
-    "dev": "nodemon --exec ts-node app.ts",
+    "db:init": "ts-node database/setup.ts && echo \"--- Database Init & Migration Complete ---\"",
+    "dev": "nodemon --exec \"node --loader ts-node/esm\" app.ts",
     "start": "node --loader ts-node/esm app.ts"
   },
   "keywords": [
