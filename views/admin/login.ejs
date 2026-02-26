@@ -1,11 +1,20 @@
 <%- include('../partials/header') %>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <div style="height: 60vh; display: flex; align-items: center; justify-content: center;">
     <form action="/admin/login" method="POST" style="width: 300px;">
         <h2>Admin Login</h2>
-        <% if (error) { %> <p style="color: red;"><%= error %></p> <% } %>
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit" class="btn" style="width: 100%;">Login</button>
+        
+        <% if (error) { %> 
+            <p style="color: red;"><%= error %></p> 
+        <% } %>
+
+        <input type="text" name="username" placeholder="Username" required style="margin-bottom: 10px; width: 100%;">
+        <input type="password" name="password" placeholder="Password" required style="margin-bottom: 10px; width: 100%;">
+
+        <div class="cf-turnstile" data-sitekey="<%= siteKey %>"></div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Login</button>
     </form>
 </div>
 <%- include('../partials/footer') %>

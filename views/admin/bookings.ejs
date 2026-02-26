@@ -125,6 +125,7 @@
                     <th>CLIENT</th>
                     <th>DATE</th>
                     <th>EMAIL</th>
+                    <th>BUDGET</th>
                     <th>STATUS</th>
                     <th>ACTIONS</th>
                 </tr>
@@ -135,6 +136,7 @@
                     <td><%= book.name %></td>
                     <td><%= new Date(book.created_at).toLocaleDateString() %></td>
                     <td><%= book.email %></td>
+                    <td><span class="budget-tag">£<%= booking.budget %></span></td>
                     <td><span class="badge badge-pending">PENDING</span></td>
                     
                     <td class="action-cell">

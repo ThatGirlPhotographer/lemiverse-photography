@@ -5,9 +5,9 @@ https://cloudflare.com/application-services/products/turnstile/
 
 Next Big Update Ideas:
 
-Port it to Typescript
+Port it to Typescript - WIP
 
-maybe try and use React if im not scared?
+maybe try and use React if im not scared? - WIP
 
 Create a better user setup system/management system to manage users
 

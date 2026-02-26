@@ -1,62 +1,44 @@
 {
-
-  "name": "lemiverse-photos",
-
+  "name": "lemiverse-photos-server",
   "version": "1.0.0",
-
-  "description": "Photography Site",
-
-  "main": "app.js",
-
+  "description": "server",
+  "type": "module",
+  "main": "app.ts",
   "dependencies": {
-
     "bcrypt": "^6.0.0",
-
     "body-parser": "^2.2.1",
-
     "dotenv": "^17.2.3",
-
     "ejs": "^3.1.10",
-
     "express": "^5.2.1",
-
     "express-session": "^1.18.2",
-
     "multer": "^2.0.2",
-
-    "nodemon": "^3.1.11",
-
-    "resend": "^6.6.0",
-
     "sharp": "^0.34.5",
-
     "sqlite": "^5.1.1",
-
     "sqlite3": "^5.1.7"
-
   },
-
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.18.1",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.0",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.2"
+  },
   "scripts": {
-
-    "db:file": "node database/db.js && echo \"--- DB File Script Finished ---\"",
-
-    "db:init": "node database/setup.js && node database/migrate_sales.js && node database/emailDB.js && echo \"--- Database Init & Migration Complete ---\"",
-
-    "dish": "node app.js && echo \"--- App/Server Stopped ---\"",
-
-    "pilt": "nodemon app.js && echo \"--- App/Server Stopped - PILT ---\""
-
+    "db:init": "tsx database/setup.ts && echo \"--- Database Init & Migration Complete ---\"",
+    "db:sync": "tsx database/migrate.ts",
+    "dev": "tsx watch app.ts",
+    "dish": "npm run db:sync && tsx app.ts",
+    "migrate": "tsx database/migrate.ts"
   },
-
   "keywords": [
-
-    "photos"
-
+    "photos",
+    "typescript"
   ],
-
   "author": "ThatGirlPhotographer",
-
   "license": "GPL-3.0-or-later"
-
 }
-
