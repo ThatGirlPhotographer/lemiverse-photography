@@ -24,8 +24,10 @@
 
     .skeleton {
         position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite linear;
@@ -37,8 +39,9 @@
         100% { background-position: -200% 0; }
     }
 
-    .gallery-img, .gallery-video-preview {
-        width: 100%; height: 100%;
+    .gallery-img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         cursor: pointer;
         transition: transform 0.3s ease, opacity 0.4s ease-in-out;
@@ -48,10 +51,14 @@
         border-radius: 8px;
     }
 
-    .loaded { opacity: 1 !important; }
-    .gallery-item:hover .loaded { transform: scale(1.05); }
+    .gallery-img.loaded {
+        opacity: 1;
+    }
 
-    /* REVERTED: Original Category Button Styling */
+    .gallery-item:hover .gallery-img.loaded {
+        transform: scale(1.05);
+    }
+
     .category-buttons {
         display: flex;
         flex-wrap: wrap;
@@ -73,54 +80,11 @@
         border-color: white;
     }
 
-    .video-badge {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 3;
-        background: rgba(0, 0, 0, 0.4);
-        width: 60px; height: 60px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-        pointer-events: none;
-    }
-
-    .video-badge svg { fill: white; width: 30px; height: 30px; margin-left: 4px; }
-
-    /* RESTORED: Isolated Custom Video Modal */
-    #videoModal {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.95);
-        z-index: 2000;
-        justify-content: center; align-items: center;
-    }
-    #videoModal video { max-width: 90%; max-height: 80vh; outline: none; }
-    .close-video {
-        position: absolute;
-        top: 20px; right: 30px;
-        color: white; font-size: 40px;
-        cursor: pointer; line-height: 1;
-    }
-
     @media (max-width: 600px) {
         .gallery-container { padding: 1rem; }
         .category-buttons { justify-content: center; }
     }
 </style>
-
-<% 
-    // Filter logic: Hide videos on the "All" view
-    const filteredImages = images.filter(img => {
-        if (!selectedCat || selectedCat === '') {
-            return img.media_type !== 'video';
-        }
-        return true;
-    });
-%>
 
 <div class="gallery-container">
     <h2>Gallery</h2>
@@ -133,89 +97,71 @@
     </div>
 
     <div class="gallery-grid">
+        <% 
+           /* Filter out videos and only keep common image formats */
+           const filteredImages = images ? images.filter(img => {
+               const ext = img.filename.split('.').pop().toLowerCase();
+               return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+           }) : [];
+        %>
+
         <% if (filteredImages.length === 0) { %>
             <div style="grid-column: 1 / -1; text-align: center; padding-top: 50px;">
                 <h1 style="color: white; font-family: 'Yanone Kaffeesatz';">Check Back Soon</h1>
+                <p style="color: rgba(255,255,255,0.7);">New fresh images coming soon.</p>
             </div>
         <% } else { %>
             <% filteredImages.forEach(img => { %>
                 <div class="gallery-item">
                     <div class="skeleton"></div>
                     
-                    <% if (img.media_type === 'video') { %>
-                        <div class="video-badge">
-                            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                        <a href="javascript:void(0)" onclick="openVideo('/gallery/<%= img.filename %>')">
-                            <video class="gallery-video-preview" preload="metadata" muted playsinline
-                                   onloadeddata="this.classList.add('loaded'); this.parentElement.parentElement.querySelector('.skeleton')?.remove();">
-                                <source src="/gallery/<%= img.filename %>#t=0.1" type="video/mp4">
-                            </video>
-                        </a>
-                    <% } else { %>
-                        <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="gallery1">
-                            <img class="gallery-img" data-src="/gallery/thumb_<%= img.filename %>" alt="<%= img.caption %>">
-                        </a>
-                    <% } %>
+                    <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="gallery1">
+                        <img class="gallery-img" 
+                             data-src="/gallery/thumb_<%= img.filename %>" 
+                             alt="<%= img.caption %>">
+                    </a>
                 </div>
             <% }) %>
         <% } %>
     </div>
 </div>
 
-<div id="videoModal">
-    <span class="close-video" onclick="closeVideo()">&times;</span>
-    <video id="modalPlayer" controls playsinline><source src="" type="video/mp4"></video>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script type="text/javascript">
-    // Initialize Photo GLightbox (Images only)
     const lightbox = GLightbox({
         selector: '.glightbox',
         touchNavigation: true,
         loop: true
     });
 
-    // Custom Video Modal Logic
-    const vModal = document.getElementById('videoModal');
-    const vPlayer = document.getElementById('modalPlayer');
-
-    window.openVideo = function(src) {
-        vPlayer.src = src;
-        vModal.style.display = 'flex';
-        vPlayer.play();
-        document.body.style.overflow = 'hidden';
-    };
-
-    window.closeVideo = function() {
-        vModal.style.display = 'none';
-        vPlayer.pause();
-        vPlayer.src = "";
-        document.body.style.overflow = 'auto';
-    };
-
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVideo(); });
-
-    // Lazy Loading Intersection Observer
     document.addEventListener("DOMContentLoaded", () => {
-        const imageElements = document.querySelectorAll('.gallery-img');
-        const observer = new IntersectionObserver((entries, obs) => {
+        const images = document.querySelectorAll('.gallery-img');
+        
+        const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    if(img.dataset.src) {
-                        img.src = img.dataset.src;
-                        img.onload = () => {
-                            img.classList.add('loaded');
-                            img.closest('.gallery-item').querySelector('.skeleton')?.remove();
-                        };
-                    }
-                    obs.unobserve(img);
+                    const container = img.closest('.gallery-item');
+                    const skeleton = container.querySelector('.skeleton');
+                    
+                    img.src = img.dataset.src;
+                    
+                    img.onload = () => {
+                        img.classList.add('loaded');
+                        setTimeout(() => {
+                            if(skeleton) skeleton.remove();
+                        }, 400); 
+                    };
+
+                    observer.unobserve(img);
                 }
             });
-        }, { rootMargin: '200px 0px', threshold: 0.01 });
-        imageElements.forEach(img => observer.observe(img));
+        }, {
+            rootMargin: '200px 0px',
+            threshold: 0.01
+        });
+
+        images.forEach(img => imageObserver.observe(img));
     });
 </script>
 
