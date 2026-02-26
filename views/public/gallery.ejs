@@ -12,19 +12,16 @@
         gap: 20px;
     }
 
-    /* 1. Optimized Gallery Item & Skeleton */
     .gallery-item {
         position: relative;
         height: 250px;
         background: #1a1a1a;
         border-radius: 8px;
         overflow: hidden;
-        /* content-visibility: auto tells browser to skip rendering logic when off-screen */
         content-visibility: auto;
         contain-intrinsic-size: 250px;
     }
 
-    /* Shimmer effect for the skeleton placeholder */
     .skeleton {
         position: absolute;
         top: 0;
@@ -48,21 +45,46 @@
         object-fit: cover;
         cursor: pointer;
         transition: transform 0.3s ease, opacity 0.4s ease-in-out;
-        opacity: 0; /* Hidden until loaded */
+        opacity: 0;
         position: relative;
         z-index: 2;
         border-radius: 8px;
     }
 
-    .gallery-img.loaded {
-        opacity: 1;
+    .gallery-img.loaded { opacity: 1; }
+
+    .gallery-item:hover .gallery-img.loaded { transform: scale(1.05); }
+
+    /* VIDEO INDICATOR OVERLAY */
+    .video-badge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        background: rgba(0, 0, 0, 0.4);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        pointer-events: none;
+        transition: background 0.3s ease;
     }
 
-    .gallery-item:hover .gallery-img.loaded {
-        transform: scale(1.05);
+    .gallery-item:hover .video-badge {
+        background: rgba(0, 0, 0, 0.7);
     }
 
-    /* Keep your original button styling */
+    .video-badge svg {
+        fill: white;
+        width: 30px;
+        height: 30px;
+        margin-left: 4px; /* Optical centering for play triangle */
+    }
+
     .category-buttons {
         display: flex;
         flex-wrap: wrap;
@@ -104,17 +126,28 @@
         <% if (images && images.length === 0) { %>
             <div style="grid-column: 1 / -1; text-align: center; padding-top: 50px;">
                 <h1 style="color: white; font-family: 'Yanone Kaffeesatz';">Check Back Soon</h1>
-                <p style="color: rgba(255,255,255,0.7);">New fresh images coming soon.</p>
+                <p style="color: rgba(255,255,255,0.7);">Fresh content is currently in the lab.</p>
             </div>
         <% } else { %>
             <% images.forEach(img => { %>
                 <div class="gallery-item">
                     <div class="skeleton"></div>
                     
-                    <a href="/gallery/<%= img.filename %>" class="glightbox" data-gallery="gallery1">
+                    <% if (img.media_type === 'video') { %>
+                        <div class="video-badge">
+                            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    <% } %>
+
+                    <a href="/gallery/<%= img.filename %>" 
+                       class="glightbox" 
+                       data-gallery="gallery1" 
+                       data-type="<%= img.media_type === 'video' ? 'video' : 'image' %>">
+                        
                         <img class="gallery-img" 
-                             data-src="/gallery/thumb_<%= img.filename %>" 
-                             alt="<%= img.caption %>">
+                             data-src="/gallery/<%= img.media_type === 'video' ? 'poster_' + img.filename.split('.')[0] + '.jpg' : 'thumb_' + img.filename %>" 
+                             alt="<%= img.caption %>"
+                             onerror="this.onerror=null; this.src='/gallery/<%= img.filename %>';">
                     </a>
                 </div>
             <% }) %>
@@ -124,45 +157,39 @@
 
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script type="text/javascript">
-    // 1. Initialize Lightbox for viewing high-res photos
+    // 1. Initialize Lightbox with Video Support
     const lightbox = GLightbox({
         selector: '.glightbox',
         touchNavigation: true,
-        loop: true
+        loop: true,
+        autoplayVideos: true,
+        videosWidth: '1024px', // Standard theater width
     });
 
-    // 2. Intersection Observer for fast scrolling/lazy loading
+    // 2. Intersection Observer for Lazy Loading
     document.addEventListener("DOMContentLoaded", () => {
-        const images = document.querySelectorAll('.gallery-img');
+        const items = document.querySelectorAll('.gallery-img');
         
-        const imageObserver = new IntersectionObserver((entries, observer) => {
+        const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     const container = img.closest('.gallery-item');
                     const skeleton = container.querySelector('.skeleton');
                     
-                    // Trigger the download of the thumbnail
                     img.src = img.dataset.src;
                     
                     img.onload = () => {
                         img.classList.add('loaded');
-                        // Small timeout to allow fade-in before removing skeleton
-                        setTimeout(() => {
-                            if(skeleton) skeleton.remove();
-                        }, 400); 
+                        setTimeout(() => { if(skeleton) skeleton.remove(); }, 400); 
                     };
 
-                    // Stop watching this specific image
-                    observer.unobserve(img);
+                    obs.unobserve(img);
                 }
             });
-        }, {
-            rootMargin: '200px 0px', // Start loading images 200px before they hit the screen
-            threshold: 0.01
-        });
+        }, { rootMargin: '200px 0px', threshold: 0.01 });
 
-        images.forEach(img => imageObserver.observe(img));
+        items.forEach(img => observer.observe(img));
     });
 </script>
 
