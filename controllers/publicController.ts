@@ -27,6 +27,20 @@ interface Service {
 const SITE_KEY = process.env.TURNSTILE_SITE_KEY;
 const SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
 
+/**
+ * Helper to fetch settings from the DB and format them into an object
+ * This ensures the view always has access to site_title, contact_email, etc.
+ */
+async function getSettingsMap() {
+    const db = await getDB();
+    const rows = await db.all('SELECT key, value FROM settings');
+    const settings: Record<string, string> = {};
+    rows.forEach(row => {
+        settings[row.key] = row.value;
+    });
+    return settings;
+}
+
 export const getHome = (req: Request, res: Response): void => {
     res.render('public/home', { title: 'Home' });
 };
@@ -74,22 +88,27 @@ export const getServices = async (req: Request, res: Response): Promise<void> =>
     }
 };
 
-export const getContact = (req: Request, res: Response): void => {
-    // Need to pass settings object and siteKey to the view
-    const settings = req.app.get('settings') || {};
-    res.render('public/contact', { 
-        title: 'Contact', 
-        settings, 
-        siteKey: SITE_KEY, 
-        error: null 
-    });
+export const getContact = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const settings = await getSettingsMap();
+        res.render('public/contact', { 
+            title: 'Contact', 
+            settings, 
+            siteKey: SITE_KEY, 
+            error: null 
+        });
+    } catch (err) {
+        console.error("Error loading contact page:", err);
+        res.status(500).send("Internal Server Error");
+    }
 };
 
 export const postContact = async (req: Request, res: Response): Promise<void> => {
     const { name, email, message, budget, 'cf-turnstile-response': turnstileToken } = req.body;
-    const settings = req.app.get('settings') || {};
+    
+    // Fetch settings immediately for potential re-render
+    const settings = await getSettingsMap();
 
-    // Internal helper to handle re-rendering with error state
     const renderError = (msg: string) => {
         return res.render('public/contact', { 
             title: 'Contact', 
@@ -99,13 +118,11 @@ export const postContact = async (req: Request, res: Response): Promise<void> =>
         });
     };
 
-    // 1. Validate Turnstile Token existence
     if (!turnstileToken) {
         return renderError('Please complete the security challenge.');
     }
 
     try {
-        // 2. Verify Token with Cloudflare
         const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
         const verifyResponse = await fetch(verifyUrl, {
             method: 'POST',
@@ -119,15 +136,13 @@ export const postContact = async (req: Request, res: Response): Promise<void> =>
             return renderError('Security challenge failed. Please try again.');
         }
 
-        // 3. Security passed: Save to Database
         const db = await getDB();
         await db.run(
             'INSERT INTO bookings (name, email, message, budget, status) VALUES (?, ?, ?, ?, ?)', 
             [name, email, message, budget, 'Pending']
         );
 
-        // 4. Success Response
-        // Note: We merge contact_success into the existing settings object
+        // Success Response: Pass the success flag inside the settings object
         res.render('public/contact', { 
             title: 'Contact', 
             siteKey: SITE_KEY,
