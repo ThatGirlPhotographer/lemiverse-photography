@@ -45,7 +45,7 @@ async function autoMigrate() {
                 await db.exec(sql);
 
                 // Special handling for the admin user if it's the initial setup
-                if (file.includes('001')) {
+                if (file.includes('002')) {
                     const password = process.env.ADMIN_PASSWORD || 'admin_password';
                     const hash = await bcrypt.hash(password, 10);
                     await db.run(`INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)`, ['lemi', hash]);
