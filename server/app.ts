@@ -1,21 +1,26 @@
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
-const fs = require('fs');
-const bodyParser = require('body-parser');
-const getDB = require('./database/db'); 
-const { startHeartbeat } = require('./utils/uptime');
-require('dotenv').config();
+import express, { type Request, type Response, type NextFunction } from 'express'
+import session from 'express-session'
+import path from 'path'
+import fs from 'fs'
+import bodyParser from 'body-parser'
+import { fileURLToPath } from 'url'
+import 'dotenv/config'
+
+import getDB from './database/db.js' 
+import { startHeartbeat } from './utils/uptime.js'
+
 
 // Route Imports
-const publicRoutes = require('./routes/public');
-const adminRoutes = require('./routes/admin');
-const galleryRoutes = require('./routes/gallery');
-const bookingRoutes = require('./routes/bookings');
-const settingsRoutes = require('./routes/settings');
-const serviceRoutes = require('./routes/services');
-const categoryRoutes = require('./routes/categories');
-const mailRoutes = require('./routes/mail');
+import publicRoutes from './routes/public.js'
+import adminRoutes from './routes/admin.js'
+import galleryRoutes from './routes/gallery.js'
+import bookingRoutes from './routes/bookings.js'
+import settingsRoutes  from './routes/settings.js'
+import serviceRoutes from './routes/services.js'
+import categoryRoutes from './routes/categories.js'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 startHeartbeat('https://status.lemiverse.win', '433f5a698d0e', 'b5f86da9520f44006c24bae6cc9b66f1');
 
@@ -35,7 +40,7 @@ app.use(session({
 }));
 
 // --- CENTRALIZED ERROR MESSAGES ---
-const errorData = {
+const errorData: Record<number | string, { title: string, desc: string }> = {
     403: { 
         title: 'PRIVATE COLLECTION', 
         desc: 'This particular series is currently reserved for a private viewing.' 
@@ -55,14 +60,15 @@ const errorData = {
 };
 
 // 1. Settings & Session Middleware
-app.use(async (req, res, next) => {
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
     res.locals.user = req.session.user || null;
 
     try {
         const db = await getDB();
         const settingsRows = await db.all('SELECT * FROM settings');
         
-        const settings = {};
+        const settings: Record<string, string> = {};
         settingsRows.forEach(row => {
             settings[row.key] = row.value;
         });
@@ -79,8 +85,9 @@ app.use(async (req, res, next) => {
 });
 
 // 2. Maintenance Middleware 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
     if (path.extname(req.path) || req.path.startsWith('/admin')) return next();
+    // @ts-ignore
     if (req.session.user) return next();
 
     try {
@@ -125,7 +132,7 @@ app.use('/admin/bookings', bookingRoutes);
 app.use('/admin/settings', settingsRoutes);
 app.use('/admin/services', serviceRoutes);
 app.use('/admin/categories', categoryRoutes);
-app.use('/mail', mailRoutes);
+
 
 // --- ERROR HANDLING SECTION ---
 app.use((req, res, next) => {
@@ -136,7 +143,7 @@ app.use((req, res, next) => {
     });
 });
 
-app.use((err, req, res, next) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     const statusCode = err.status || 500;
     
     // errorData is now pulled from the top of the file!

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/authController');
+const controller = require('../controllers/authController.ts/index.js');
 
 const isAuth = (req, res, next) => {
     if (req.session.user) next();
