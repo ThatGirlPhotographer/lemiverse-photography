@@ -1,5 +1,5 @@
-function startHeartbeat(apiUrl, serviceId, token, intervalMs = 30000) {
-    const sendPing = async () => {
+export function startHeartbeat(apiUrl: string, serviceId: string, token: string, intervalMs: number = 30000): NodeJS.Timeout {
+    const sendPing = async (): Promise<void> => {
         try {
             const res = await fetch(`${apiUrl}/heartbeat`, {
                 method: 'POST',
@@ -24,5 +24,3 @@ function startHeartbeat(apiUrl, serviceId, token, intervalMs = 30000) {
     console.log(`[Uptime Monitor] Heartbeat started for Service ID: ${serviceId}`);
     return timer;
 }
-
-module.exports = { startHeartbeat };

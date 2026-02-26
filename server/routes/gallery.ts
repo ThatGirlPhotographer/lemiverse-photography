@@ -1,8 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const controller = require('../controllers/galleryController');
+import express, { type Request, type Response, type NextFunction, Router } from 'express';
+import multer from 'multer';
+import path from 'path';
+import * as controller from '../controllers/galleryController.js';
+
+const router: Router = express.Router();
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'public/gallery/'),
@@ -10,17 +11,15 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-const isAuth = (req, res, next) => {
+const isAuth = (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
     if (req.session.user) next();
     else res.redirect('/admin/login');
 };
 
-// Upload Routes
 router.get('/upload', isAuth, controller.getUpload);
 router.post('/upload', isAuth, upload.array('image', 15), controller.postUpload);
-
-// Management Routes
 router.get('/manage', isAuth, controller.getManage);
 router.post('/delete/:id', isAuth, controller.deleteImage);
 
-module.exports = router;
+export default router;

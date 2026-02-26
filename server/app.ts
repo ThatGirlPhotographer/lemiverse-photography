@@ -9,7 +9,6 @@ import 'dotenv/config'
 import getDB from './database/db.js' 
 import { startHeartbeat } from './utils/uptime.js'
 
-
 // Route Imports
 import publicRoutes from './routes/public.js'
 import adminRoutes from './routes/admin.js'
@@ -40,7 +39,7 @@ app.use(session({
 }));
 
 // --- CENTRALIZED ERROR MESSAGES ---
-const errorData: Record<number | string, { title: string, desc: string }> = {
+const errorData: Record<number | string, { title: string, desc: string }> & { default: { title: string, desc: string } } = {
     403: { 
         title: 'PRIVATE COLLECTION', 
         desc: 'This particular series is currently reserved for a private viewing.' 
@@ -145,8 +144,6 @@ app.use((req, res, next) => {
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     const statusCode = err.status || 500;
-    
-    // errorData is now pulled from the top of the file!
     const content = errorData[statusCode] || errorData.default;
     console.error(`[Error ${statusCode}]: ${err.message}`);
 

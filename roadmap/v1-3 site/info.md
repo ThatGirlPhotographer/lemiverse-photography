@@ -1,4 +1,4 @@
-# V1 Photo Portfolio Site
+# V1-3 Photo Portfolio Site
 
 ## Nickname: EcoPhotos/exporess-photography-site
 
