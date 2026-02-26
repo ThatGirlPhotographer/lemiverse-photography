@@ -39,7 +39,6 @@
         100% { background-position: -200% 0; }
     }
 
-    /* Target both img and video tags for the grid display */
     .gallery-img, .gallery-video-preview {
         width: 100%;
         height: 100%;
@@ -99,6 +98,28 @@
         background-color: white;
         color: #050505 !important; 
         border-color: white;
+    }
+
+    /* FIX: GLIGHTBOX STACKING CONTEXT FIXES */
+    .glightbox-container {
+        z-index: 999999 !important;
+    }
+    
+    /* Force the active slide to the top so video UI doesn't leak */
+    .gslide.current {
+        z-index: 10 !important;
+    }
+
+    /* Ensure images have a solid background in the player */
+    .gslide-image {
+        background-color: #000;
+    }
+
+    /* Fix for hardware acceleration glitches on video UI */
+    .gslide-video {
+        backface-visibility: hidden;
+        transform: translateZ(0);
+        background: #000;
     }
 
     @media (max-width: 600px) {
@@ -172,8 +193,23 @@
         videosWidth: '1024px',
     });
 
+    // BUG FIX: Reset video opacity and pause non-active videos to prevent UI bleeding
+    lightbox.on('slide_before_change', ({ prev, current }) => {
+        const video = prev.instance.querySelector('video');
+        if (video) {
+            video.pause();
+            video.style.opacity = '0'; // Hide video layer immediately
+        }
+    });
+
+    lightbox.on('slide_after_change', ({ prev, current }) => {
+        const video = current.instance.querySelector('video');
+        if (video) {
+            video.style.opacity = '1'; // Show active video layer
+        }
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
-        // Only observe images (videos use onloadeddata event above)
         const imageElements = document.querySelectorAll('.gallery-img');
         
         const observer = new IntersectionObserver((entries, obs) => {
