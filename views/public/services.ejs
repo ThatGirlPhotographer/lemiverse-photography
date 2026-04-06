@@ -1,5 +1,6 @@
 <%- include('../partials/header') %>
 
+<link rel="preconnect" href="https://cdn.lemiverse.win" crossorigin>
 <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700,300" rel="stylesheet">
 
 <style>
@@ -49,28 +50,32 @@ body {
 
 .card_inner__circle {
   overflow: hidden;
-  /* UPDATED: Increased Size */
-  width: 80px; 
-  height: 80px;
+  width: 96px;
+  height: 96px;
   position: absolute;
   background: #F1F0ED;
   z-index: 10;
-  border-radius: 100px;
+  border-radius: 999px;
   left: 0; right: 0; margin: auto;
+  top: 52px;
   box-shadow: 0px 7px 20px rgba(0, 0, 0, 0.28);
   border: 4px solid #fff;
-  /* Adjusted top to center over the line (Header is 100px tall) */
-  top: 60px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.card_inner__circle img { 
-    /* UPDATED: Increased Icon Size */
-    height: 40px; 
-    width: 40px; 
-    position: relative; 
-    /* Centered vertically in the 80px circle */
-    top: 20px; 
-    transition: all .2s; 
+.card_inner__circle img {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    display: block;
+    transform: scale(1.22);
+    transition: transform .2s ease;
+}
+
+.card:hover .card_inner__circle img {
+    transform: scale(1.28);
 }
 
 /* REMOVED HOVER ANIMATIONS HERE */
@@ -98,7 +103,7 @@ body {
   font-weight: 800;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.64);
-  margin-top: 45px; 
+  margin-top: 56px; 
   margin-bottom: 0; 
   font-size: 22px;
   letter-spacing: 1px;
@@ -145,6 +150,7 @@ body {
   
   /* Truncate text */
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -177,6 +183,18 @@ body {
 @keyframes intro { 0%{transform:scale(0);} 25%{transform:scale(1.06);} 50%{transform:scale(.965);} 75%{transform:scale(1.02);} 100%{transform:scale(1);} }
 </style>
 
+<%
+const rotatingImages = [
+  'https://cdn.lemiverse.win/u/Zd7pLV.png',
+  'https://cdn.lemiverse.win/u/BdaeJz.png',
+  'https://cdn.lemiverse.win/u/V44q4O.png',
+  'https://cdn.lemiverse.win/u/ApXfqC.png',
+  'https://cdn.lemiverse.win/u/EuuIL0.png',
+  'https://cdn.lemiverse.win/u/bWPxIN.avif',
+  'https://cdn.lemiverse.win/u/3ZQOvR.jpg'
+];
+%>
+
 <div class="pricing-wrapper">
     <% if (services && services.length === 0) { %>
         <div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; width: 100%; flex-direction: column;">
@@ -188,31 +206,18 @@ body {
             </p>
         </div>
     <% } else { %>
-        <% services.forEach((service, index) => { 
-            let headerImg = 'http://www.pixeden.com/media/k2/galleries/343/002-city-vector-background-town-vol2.jpg';
-            let iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
-            
-            if (index % 3 === 1) { 
-                // Blue Card Theme
-                headerImg = 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=600&q=80';
-                iconImg = 'https://img.icons8.com/ios-filled/100/6B6ECC/camera--v1.png';
-            } else if (index % 3 === 2) { 
-                // Green Card Theme
-                headerImg = 'https://c7.uihere.com/files/859/510/385/abstract-forest-landscape.jpg';
-                iconImg = 'https://img.icons8.com/ios-filled/100/81B77B/camera--v1.png';
-            } else {
-                 // Pink Card Theme (Default)
-                 iconImg = 'https://img.icons8.com/ios-filled/100/fe5e7d/camera--v1.png';
-            }
+        <% services.forEach((service, index) => {
+            const headerImg = rotatingImages[0];
+            const iconImg = 'https://cdn.lemiverse.win/u/lemi.png';
         %>
 
         <section class="card">
             <div class="card_inner">
                 <div class="card_inner__circle">
-                    <img src="<%= iconImg %>">
+                    <img src="<%= iconImg %>" alt="<%= service.title %> icon">
                 </div>
                 <div class="card_inner__header">
-                    <img src="<%= headerImg %>">
+                    <img src="<%= headerImg %>" alt="<%= service.title %> preview" data-card-index="<%= index %>" loading="eager" decoding="async" fetchpriority="high">
                 </div>
                 <div class="card_inner__content">
                     <div class="title"><%= service.title %></div>
@@ -241,3 +246,50 @@ body {
 </div>
 
 <%- include('../partials/footer') %>
+
+<script>
+const serviceRotationImages = [
+    'https://cdn.lemiverse.win/u/Zd7pLV.png',
+    'https://cdn.lemiverse.win/u/BdaeJz.png',
+    'https://cdn.lemiverse.win/u/V44q4O.png',
+    'https://cdn.lemiverse.win/u/ApXfqC.png',
+    'https://cdn.lemiverse.win/u/EuuIL0.png',
+    'https://cdn.lemiverse.win/u/bWPxIN.avif',
+    'https://cdn.lemiverse.win/u/3ZQOvR.jpg'
+];
+
+const SERVICE_STORAGE_KEY = 'lemiverse-service-card-images';
+
+(() => {
+    const serviceHeaderEls = Array.from(document.querySelectorAll('.card_inner__header img'));
+    if (!serviceHeaderEls.length) return;
+
+    let cachedSelections = {};
+
+    try {
+        cachedSelections = JSON.parse(window.localStorage.getItem(SERVICE_STORAGE_KEY) || '{}');
+    } catch {
+        cachedSelections = {};
+    }
+
+    serviceHeaderEls.forEach((img) => {
+        const cardIndex = String(Number(img.dataset.cardIndex || 0));
+        let selectedImage = cachedSelections[cardIndex];
+
+        if (!selectedImage || !serviceRotationImages.includes(selectedImage)) {
+            selectedImage = serviceRotationImages[Math.floor(Math.random() * serviceRotationImages.length)];
+            cachedSelections[cardIndex] = selectedImage;
+        }
+
+        if (img.src !== selectedImage) {
+            img.src = selectedImage;
+        }
+    });
+
+    try {
+        window.localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify(cachedSelections));
+    } catch {
+        // Ignore storage write failures.
+    }
+})();
+</script>

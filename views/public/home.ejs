@@ -1,5 +1,32 @@
 <%- include('../partials/header') %>
 
+<link rel="preconnect" href="https://cdn.lemiverse.win" crossorigin>
+<script>
+(() => {
+    const heroImages = [
+        'https://cdn.lemiverse.win/u/Zd7pLV.png',
+        'https://cdn.lemiverse.win/u/BdaeJz.png',
+        'https://cdn.lemiverse.win/u/V44q4O.png',
+        'https://cdn.lemiverse.win/u/ApXfqC.png',
+        'https://cdn.lemiverse.win/u/EuuIL0.png',
+        'https://cdn.lemiverse.win/u/bWPxIN.avif',
+        'https://cdn.lemiverse.win/u/3ZQOvR.jpg'
+    ];
+    const storageKey = 'lemiverse-home-hero-image';
+
+    try {
+        let selectedImage = window.localStorage.getItem(storageKey);
+        if (!selectedImage || !heroImages.includes(selectedImage)) {
+            selectedImage = heroImages[Math.floor(Math.random() * heroImages.length)];
+            window.localStorage.setItem(storageKey, selectedImage);
+        }
+        document.documentElement.style.setProperty('--hero-image-url', `url('${selectedImage}')`);
+    } catch {
+        document.documentElement.style.setProperty('--hero-image-url', `url('${heroImages[0]}')`);
+    }
+})();
+</script>
+
 <style>
     :root {
         --dark: #0a0a0a;
@@ -32,7 +59,7 @@
         position: absolute;
         width: 100%;
         height: 100%;
-        background-image: url('http://www.pixeden.com/media/k2/galleries/343/002-city-vector-background-town-vol2.jpg');
+        background-image: var(--hero-image-url, url('https://cdn.lemiverse.win/u/Zd7pLV.png'));
         background-size: cover;
         background-position: center;
         filter: brightness(0.5) grayscale(20%);
@@ -145,7 +172,7 @@ function typeEffect() {
     if (!el) return;
     const currentFullWord = words[wordIdx];
 
-    if (isDeleting) { charIdx--; } 
+    if (isDeleting) { charIdx--; }
     else { charIdx++; }
 
     const currentDisplay = currentFullWord.substring(0, charIdx);
@@ -154,7 +181,7 @@ function typeEffect() {
     let typingSpeed = isDeleting ? 70 : 150;
 
     if (!isDeleting && charIdx === currentFullWord.length) {
-        typingSpeed = 2000; 
+        typingSpeed = 2000;
         isDeleting = true;
     } else if (isDeleting && charIdx === 0) {
         isDeleting = false;
@@ -165,6 +192,6 @@ function typeEffect() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(typeEffect, 800); 
+    setTimeout(typeEffect, 800);
 });
 </script>
